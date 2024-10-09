@@ -1,5 +1,6 @@
 "use client";
 import React, { useState } from "react";
+import { usePathname } from 'next/navigation';
 import { Sidebar, SidebarBody, SidebarLink } from "./ui/sidebar";
 import {
   // IconArrowLeft,
@@ -36,6 +37,8 @@ export function SideBar() {
     // },
   ];
   const [open, setOpen] = useState(false);
+  const pathname = usePathname();
+
   return (
     <div>
       <Sidebar open={open} setOpen={setOpen}>
@@ -44,7 +47,17 @@ export function SideBar() {
             {open ? <Logo /> : <LogoIcon />}
             <div className="mt-8 flex flex-col gap-2">
               {links.map((link, idx) => (
-                <SidebarLink key={idx} link={link} />
+                <SidebarLink 
+                  key={idx} 
+                  link={link} 
+                  className={`${
+                    pathname === link.href
+                      ? "bg-secondary px-1 rounded-lg"
+                      : "bg-transparent px-1  rounded-lg"
+                  }`} 
+                  // Remove the isActive prop if not needed, or
+                  // Update the component's props interface to include isActive: boolean
+                />
               ))}
             </div>
           </div>
@@ -55,7 +68,7 @@ export function SideBar() {
                 href: "#",
                 icon: (
                   <Image
-                    src="/next.svg"
+                    src="/21bubbles_logo.jpeg"
                     className="h-7 w-7 flex-shrink-0 rounded-full"
                     width={50}
                     height={50}
@@ -74,7 +87,7 @@ export const Logo = () => {
   return (
     <Link
       href="#"
-      className="font-normal flex space-x-2 items-center text-sm  py-1 relative z-20"
+      className="font-normal flex space-x-2 items-center  py-1 relative z-20"
     >
       <div className="h-5 w-6 rounded-br-lg rounded-tr-sm rounded-tl-lg rounded-bl-sm flex-shrink-0" />
       <motion.span
@@ -91,7 +104,7 @@ export const LogoIcon = () => {
   return (
     <Link
       href="/dashboard"
-      className="font-normal flex space-x-2 items-center text-sm py-1 relative z-20"
+      className="font-normal flex space-x-2 items-center py-1 relative z-20"
     >
       <div className="h-5 w-6  rounded-br-lg rounded-tr-sm rounded-tl-lg rounded-bl-sm flex-shrink-0" />
     </Link>
