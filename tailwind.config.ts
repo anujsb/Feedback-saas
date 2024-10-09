@@ -10,7 +10,7 @@ const config: Config = {
   theme: {
   	extend: {
   		colors: {
-  			background: 'hsl(var(--background))',
+  			// background: 'hsl(var(--background))',
   			foreground: 'hsl(var(--foreground))',
   			card: {
   				DEFAULT: 'hsl(var(--card))',
@@ -20,22 +20,22 @@ const config: Config = {
   				DEFAULT: 'hsl(var(--popover))',
   				foreground: 'hsl(var(--popover-foreground))'
   			},
-  			primary: {
-  				DEFAULT: 'hsl(var(--primary))',
-  				foreground: 'hsl(var(--primary-foreground))'
-  			},
-  			secondary: {
-  				DEFAULT: 'hsl(var(--secondary))',
-  				foreground: 'hsl(var(--secondary-foreground))'
-  			},
+  			// primary: {
+  			// 	DEFAULT: 'hsl(var(--primary))',
+  			// 	foreground: 'hsl(var(--primary-foreground))'
+  			// },
+  			// secondary: {
+  			// 	DEFAULT: 'hsl(var(--secondary))',
+  			// 	foreground: 'hsl(var(--secondary-foreground))'
+  			// },
   			muted: {
   				DEFAULT: 'hsl(var(--muted))',
   				foreground: 'hsl(var(--muted-foreground))'
   			},
-  			accent: {
-  				DEFAULT: 'hsl(var(--accent))',
-  				foreground: 'hsl(var(--accent-foreground))'
-  			},
+  			// accent: {
+  			// 	DEFAULT: 'hsl(var(--accent))',
+  			// 	foreground: 'hsl(var(--accent-foreground))'
+  			// },
   			destructive: {
   				DEFAULT: 'hsl(var(--destructive))',
   				foreground: 'hsl(var(--destructive-foreground))'
@@ -49,7 +49,12 @@ const config: Config = {
   				'3': 'hsl(var(--chart-3))',
   				'4': 'hsl(var(--chart-4))',
   				'5': 'hsl(var(--chart-5))'
-  			}
+  			},
+			text: 'var(--text)',
+			background: 'var(--background)',
+			primary: 'var(--primary)',
+			secondary: 'var(--secondary)',
+			accent: 'var(--accent)'
   		},
   		borderRadius: {
   			lg: 'var(--radius)',
