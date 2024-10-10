@@ -1,20 +1,16 @@
-import { SideBar } from '@/components/SideBar'
-import { cn } from '@/lib/utils'
-import React from 'react'
+import { SideBar } from "@/components/SideBar";
+import React from "react";
 
 export default function Dashboard() {
   return (
-    <div
-      className={cn(
-        " rounded-md flex flex-col md:flex-row flex-1   w-full overflow-hidden",
-        "h-screen"
-      )}
-    >
+    <div className="flex h-screen overflow-hidden">
       {" "}
       <SideBar />
-      <div className="flex flex-1 flex-col items-center justify-center w-full">
-        Dashboard
+      <div className="flex-1 overflow-y-auto">
+        <div className="flex flex-1 flex-col items-center justify-center w-full h-screen">
+          Dashboard
+        </div>
       </div>
     </div>
-  )
+  );
 }
