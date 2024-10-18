@@ -39,6 +39,90 @@ const CreateForm = () => {
 
   const { isLoaded, isSignedIn, user } = userInfo || {};
 
+  const PROMPT = `
+  On the basis of the following description, please provide a form in JSON format. The JSON object should include:
+  
+  - formTitle: A title for the form.
+  - formSubheading: A subheading for the form.
+  - formFields: An array of form field objects, each containing the following properties:
+    - fieldName: The unique name/identifier of the form field.
+    - placeholder: Placeholder text for the form field (if applicable).
+    - formLabel: The label displayed next to the form field.
+    - fieldType: The type of the field (e.g., text, email, select, checkbox, radio, etc.).
+    - required: A boolean indicating whether the field is required.
+  
+  If the fieldType is "select", please include an additional property called "selectOptions", which is an array of objects with the following fields:
+    - label: The label shown for each option.
+    - value: The value associated with each option.
+  
+  If the fieldType is "radio", please include an additional property called "radioOptions", which is an array of objects with the following fields:
+    - label: The label shown for each radio button.
+    - value: The value associated with each option.
+  
+  If the fieldType is "checkbox", please include an additional property called "checkboxOptions", which is an array of objects with the following fields:
+    - label: The label shown for each checkbox.
+    - value: The value associated with each option.
+  
+  The output should be structured in valid JSON format.
+  
+  Example JSON Format:
+  
+  {
+    "formTitle": "User Preferences",
+    "formSubheading": "Please fill in your preferences below.",
+    "formFields": [
+      {
+        "fieldName": "username",
+        "placeholder": "Enter your username",
+        "formLabel": "Username",
+        "fieldType": "text",
+        "required": true
+      },
+      {
+        "fieldName": "email",
+        "placeholder": "Enter your email",
+        "formLabel": "Email",
+        "fieldType": "email",
+        "required": true
+      },
+      {
+        "fieldName": "theme",
+        "placeholder": "Select theme",
+        "formLabel": "Theme",
+        "fieldType": "select",
+        "required": false,
+        "selectOptions": [
+          { "label": "Light", "value": "light" },
+          { "label": "Dark", "value": "dark" },
+          { "label": "System", "value": "system" }
+        ]
+      },
+      {
+        "fieldName": "notifications",
+        "formLabel": "Enable Notifications",
+        "fieldType": "checkbox",
+        "required": false,
+        "checkboxOptions": [
+          { "label": "Email", "value": "email" },
+          { "label": "SMS", "value": "sms" },
+          { "label": "Push", "value": "push" }
+        ]
+      },
+      {
+        "fieldName": "gender",
+        "formLabel": "Gender",
+        "fieldType": "radio",
+        "required": false,
+        "radioOptions": [
+          { "label": "Male", "value": "male" },
+          { "label": "Female", "value": "female" },
+          { "label": "Other", "value": "other" }
+        ]
+      }
+    ]
+  }
+  `;
+
   const onCreateForm = async () => {
     if (!isLoaded || !isSignedIn) {
       console.error("User is not signed in");
@@ -51,7 +135,7 @@ const CreateForm = () => {
     setOpenDialog(false);
 
     try {
-      const result = await AiChatSession(userInput);
+      const result = await AiChatSession("Description" + userInput + PROMPT);
       const aiResponse = await result.response.text();
 
       if (aiResponse) {
