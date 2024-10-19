@@ -4,7 +4,6 @@ import { jsonForms } from "@/configs/schema";
 import { useUser } from "@clerk/nextjs";
 import { and, eq } from "drizzle-orm";
 import React, { useEffect, useState } from "react";
-import { SideBar } from "@/components/SideBar";
 import { ArrowLeftIcon } from "@radix-ui/react-icons";
 import { useRouter } from "next/navigation";
 import FormUi from "../_components/FormUi";
@@ -18,14 +17,14 @@ interface EditFormProps {
 interface JsonForm {
   formTitle?: string;
   formHeading?: string;
-  [key: string]: any; // For any additional dynamic fields
+  formFields?: { [key: string]: any }[]; // Define the form fields as an array of objects
 }
 
 function EditForm({ params }: EditFormProps) {
   const { user } = useUser();
   const [jsonForm, setJsonForm] = useState<JsonForm | null>(null);
-  const [loading, setLoading] = useState<boolean>(true); // Added loading state
-  const [error, setError] = useState<string | null>(null); // Added error state
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -35,8 +34,8 @@ function EditForm({ params }: EditFormProps) {
   }, [user]);
 
   const GetFormData = async () => {
-    setLoading(true); // Start loading
-    setError(null); // Reset error state before fetching
+    setLoading(true);
+    setError(null);
     try {
       const result = await db
         .select()
@@ -44,7 +43,10 @@ function EditForm({ params }: EditFormProps) {
         .where(
           and(
             eq(jsonForms.id, params?.formId),
-            eq(jsonForms.createdBy, user?.primaryEmailAddress?.emailAddress as string)
+            eq(
+              jsonForms.createdBy,
+              user?.primaryEmailAddress?.emailAddress as string
+            )
           )
         );
       if (result.length === 0) {
@@ -55,7 +57,28 @@ function EditForm({ params }: EditFormProps) {
       console.error("Error fetching form data:", error);
       setError("Unable to fetch form data. Please try again later.");
     } finally {
-      setLoading(false); // Stop loading after fetching data
+      setLoading(false);
+    }
+  };
+
+  const updateFormInDb = async (updatedForm: JsonForm) => {
+    try {
+      await db
+        .update(jsonForms)
+        .set({ jsonform: JSON.stringify(updatedForm) })
+        .where(eq(jsonForms.id, params?.formId));
+    } catch (error) {
+      console.error("Error updating form data:", error);
+    }
+  };
+
+  const onFieldUpdate = (updatedField: any, index: number) => {
+    if (jsonForm) {
+      const updatedFields = [...jsonForm.formFields];
+      updatedFields[index] = { ...updatedFields[index], ...updatedField };
+      const updatedForm = { ...jsonForm, formFields: updatedFields };
+      setJsonForm(updatedForm);
+      updateFormInDb(updatedForm); // Update form in the DB
     }
   };
 
@@ -69,17 +92,15 @@ function EditForm({ params }: EditFormProps) {
           <ArrowLeftIcon /> Back
         </h2>
 
-        {/* Display error message if any */}
         {error && <p className="text-red-500">{error}</p>}
 
-        {/* Show loading spinner or message */}
         {loading ? (
-          <p>Loading form...</p> // You could replace this with a spinner component
+          <p>Loading form...</p>
         ) : (
           <div className="grid grid-flow-col grid-cols-3 gap-8 w-full">
             <div className="col-span-2 border rounded-md min-h-screen h-full p-4 flex items-center justify-center">
               {jsonForm ? (
-                <FormUi jsonForm={jsonForm} />
+                <FormUi jsonForm={jsonForm} onFieldUpdate={onFieldUpdate} />
               ) : (
                 <p>Form data is unavailable.</p>
               )}
