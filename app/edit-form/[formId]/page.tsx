@@ -7,6 +7,17 @@ import React, { useEffect, useState } from "react";
 import { ArrowLeftIcon } from "@radix-ui/react-icons";
 import { useRouter } from "next/navigation";
 import FormUi from "../_components/FormUi";
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogAction,
+  AlertDialogCancel,
+} from "@/components/ui/alert-dialog"; // Adjust path as necessary
+import { Button } from "@/components/ui/button";
+import { SquareArrowUpRightIcon } from "lucide-react";
+import Link from "next/link";
 
 interface EditFormProps {
   params: {
@@ -25,6 +36,8 @@ function EditForm({ params }: EditFormProps) {
   const [jsonForm, setJsonForm] = useState<JsonForm | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [deletingIndex, setDeletingIndex] = useState<number | null>(null);
+  const [isAlertOpen, setIsAlertOpen] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -82,16 +95,80 @@ function EditForm({ params }: EditFormProps) {
     }
   };
 
+  const onFieldDelete = (index: number) => {
+    setDeletingIndex(index);
+    setIsAlertOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (jsonForm && deletingIndex !== null) {
+      const updatedFields = jsonForm.formFields!.filter(
+        (_, idx) => idx !== deletingIndex
+      );
+      const updatedForm = { ...jsonForm, formFields: updatedFields };
+      setJsonForm(updatedForm);
+      await updateFormInDb(updatedForm); // Update form in the DB
+      setIsAlertOpen(false);
+      setDeletingIndex(null); // Reset deleting index
+    }
+  };
+
+  const onAddField = async (fieldType: string) => {
+    if (jsonForm) {
+      const newField = {
+        fieldType,
+        formLabel: `New ${
+          fieldType.charAt(0).toUpperCase() + fieldType.slice(1)
+        } Field`,
+        placeholder: `Enter ${fieldType}`,
+        fieldName: `new_${fieldType}_${Date.now()}`,
+      };
+
+      const updatedFields = [...(jsonForm.formFields || []), newField];
+      const updatedForm = { ...jsonForm, formFields: updatedFields };
+      setJsonForm(updatedForm);
+      await updateFormInDb(updatedForm);
+    }
+  };
+
+  const onTitleUpdate = async (newTitle: string) => {
+    if (jsonForm) {
+      const updatedForm = { ...jsonForm, formTitle: newTitle };
+      setJsonForm(updatedForm);
+      await updateFormInDb(updatedForm);
+    }
+  };
+
+  const onSubheadingUpdate = async (newSubheading: string) => {
+    if (jsonForm) {
+      const updatedForm = { ...jsonForm, formSubheading: newSubheading };
+      setJsonForm(updatedForm);
+      await updateFormInDb(updatedForm);
+    }
+  };
+
   return (
     <div>
       <div className="flex flex-1 flex-col items-center justify-center w-full mt-10 p-10">
-        <h2
-          className="flex gap-2 items-center my-5 cursor-pointer hover:font-bold"
-          onClick={() => router.back()}
-        >
-          <ArrowLeftIcon /> Back
-        </h2>
-
+        <div>
+          <h2
+            className="flex gap-2 items-center my-5 cursor-pointer hover:font-bold"
+            onClick={() => router.back()}
+          >
+            <ArrowLeftIcon /> Back
+          </h2>
+          <div>
+            <Link href={`/aiform/${params.formId}`} target="_blank">
+              <Button>
+                {" "}
+                <SquareArrowUpRightIcon /> Live preview
+              </Button>
+            </Link>
+            <Link href={`/embed/${params.formId}`} target="_blank">
+              <Button>Embed Link</Button>
+            </Link>
+          </div>
+        </div>
         {error && <p className="text-red-500">{error}</p>}
 
         {loading ? (
@@ -100,7 +177,14 @@ function EditForm({ params }: EditFormProps) {
           <div className="grid grid-flow-col grid-cols-3 gap-8 w-full">
             <div className="col-span-2 border rounded-md min-h-screen h-full p-4 flex items-center justify-center">
               {jsonForm ? (
-                <FormUi jsonForm={jsonForm} onFieldUpdate={onFieldUpdate} />
+                <FormUi
+                  jsonForm={jsonForm}
+                  onFieldUpdate={onFieldUpdate}
+                  onFieldDelete={onFieldDelete}
+                  onAddField={onAddField}
+                  onTitleUpdate={onTitleUpdate}
+                  onSubheadingUpdate={onSubheadingUpdate}
+                />
               ) : (
                 <p>Form data is unavailable.</p>
               )}
@@ -111,6 +195,25 @@ function EditForm({ params }: EditFormProps) {
           </div>
         )}
       </div>
+
+      {/* Alert Dialog for Confirmation */}
+      <AlertDialog open={isAlertOpen} onOpenChange={setIsAlertOpen}>
+        <AlertDialogContent>
+          <AlertDialogTitle>Delete Field</AlertDialogTitle>
+          <AlertDialogDescription>
+            Are you sure you want to delete this field? This action cannot be
+            undone.
+          </AlertDialogDescription>
+          <div className="flex justify-end">
+            <AlertDialogCancel onClick={() => setIsAlertOpen(false)}>
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDelete} className="ml-2">
+              Delete
+            </AlertDialogAction>
+          </div>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

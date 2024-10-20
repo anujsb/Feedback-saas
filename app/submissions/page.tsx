@@ -1,27 +1,62 @@
-import React from "react";
+"use client";
+
+import React, { useEffect, useState } from "react";
 import { SideBar } from "@/components/SideBar";
 import { cn } from "@/lib/utils";
 import { IconUserBolt } from "@tabler/icons-react";
 import {
   Table,
   TableBody,
-//   TableCaption,
   TableCell,
   TableFooter,
   TableHead,
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { db } from "@/configs";
+import { submissions, jsonForms } from "@/configs/schema";
+import { eq } from "drizzle-orm";
 
-const page = () => {
+const SubmissionsPage = () => {
+  const [submissionData, setSubmissionData] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchSubmissions();
+  }, []);
+
+  const fetchSubmissions = async () => {
+    try {
+      const result = await db.select({
+        submissionId: submissions.id,
+        formId: submissions.formId,
+        submissionData: submissions.submissionData,
+        createdAt: submissions.createdAt,
+        formTitle: jsonForms.jsonform
+      })
+      .from(submissions)
+      .leftJoin(jsonForms, eq(submissions.formId, jsonForms.id));
+      
+      const processedData = result.map(item => ({
+        ...item,
+        submissionData: JSON.parse(item.submissionData),
+        formTitle: JSON.parse(item.formTitle).formTitle || 'Untitled Form'
+      }));
+      
+      setSubmissionData(processedData);
+    } catch (error) {
+      console.error("Error fetching submissions:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return <div>Loading submissions...</div>;
+  }
+
   return (
-    <div
-      className={cn(
-        " rounded-md flex flex-col md:flex-row flex-1   w-full overflow-hidden",
-        "h-screen"
-      )}
-    >
-      {" "}
+    <div className={cn(" rounded-md flex flex-col md:flex-row flex-1 w-full overflow-hidden", "h-screen")}>
       <SideBar />
       <div className="flex flex-1 flex-col items-center m-20 w-full">
         <div className="flex flex-col gap-4 w-full">
@@ -29,63 +64,35 @@ const page = () => {
           <div className="flex flex-row gap-4 mt-4">
             <div className="flex flex-col gap-2 border border-secondary p-4 rounded-md w-full">
               <IconUserBolt className=" h-5 w-5 flex-shrink-0" />
-              <h1>Total Feedbacks</h1>
-              <h1>100</h1>
+              <h1>Total Submissions</h1>
+              <h1>{submissionData.length}</h1>
             </div>
-            <div className="flex flex-col gap-2 border border-secondary p-4 rounded-md w-full">
-              <IconUserBolt className=" h-5 w-5 flex-shrink-0" />
-              <h1>Bad Ratings</h1>
-              <h1>50</h1>
-            </div>
-            <div className="flex flex-col gap-2 border border-secondary p-4 rounded-md w-full ">
-              <IconUserBolt className=" h-5 w-5 flex-shrink-0" />
-              <h1>Good Ratings</h1>
-              <h1>50</h1>
-            </div>
-          </div>
-          <div className="flex flex-col gap-4 w-full">
-            <h1 className="text-start text-2xl font-bold">AI Summary</h1>
-            <div className="flex flex-col gap-2 border border-secondary p-4 rounded-md w-full">
-              <h1>Summary</h1>
-              <h1>
-                Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                Quisquam, quos.
-              </h1>
-            </div>
+            {/* Add more summary cards as needed */}
           </div>
           <div className="mt-4">
             <Table>
-              {/* <TableCaption>
-                <h1 className="text-start text-2xl font-bold">
-                  Submissions
-                </h1>
-              </TableCaption> */}
               <TableHeader>
                 <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Email</TableHead>
-                  <TableHead>Rating</TableHead>
-                  <TableHead>Feedback</TableHead>
+                  <TableHead>Form Title</TableHead>
+                  <TableHead>Submission Date</TableHead>
+                  <TableHead>Data</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                <TableRow>
-                  <TableCell>John Doe</TableCell>
-                  <TableCell>john@doe.com</TableCell>
-                  <TableCell>4</TableCell>
-                  <TableCell>Good</TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell>Jane Doe</TableCell>
-                  <TableCell>jane@doe.com</TableCell>
-                  <TableCell>3</TableCell>
-                  <TableCell>Good</TableCell>
-                </TableRow>
+                {submissionData.map((submission) => (
+                  <TableRow key={submission.submissionId}>
+                    <TableCell>{submission.formTitle}</TableCell>
+                    <TableCell>{new Date(submission.createdAt).toLocaleString()}</TableCell>
+                    <TableCell>
+                      <pre>{JSON.stringify(submission.submissionData, null, 2)}</pre>
+                    </TableCell>
+                  </TableRow>
+                ))}
               </TableBody>
               <TableFooter>
                 <TableRow>
-                <TableCell colSpan={3}>Total</TableCell>
-                <TableCell className="text-right">2 Feedbacks</TableCell>
+                  <TableCell colSpan={2}>Total</TableCell>
+                  <TableCell className="text-right">{submissionData.length} Submissions</TableCell>
                 </TableRow>
               </TableFooter>
             </Table>
@@ -96,4 +103,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default SubmissionsPage;

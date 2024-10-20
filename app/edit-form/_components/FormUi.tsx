@@ -1,118 +1,6 @@
-// import { Input } from "@/components/ui/input";
-// import React from "react";
-// import {
-//   Select,
-//   SelectContent,
-//   SelectItem,
-//   SelectTrigger,
-//   SelectValue,
-// } from "@/components/ui/select";
-// import { Label } from "@/components/ui/label";
-// import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-// import { Checkbox } from "@/components/ui/checkbox";
-// import FieldEdit from "./FieldEdit";
-
-// interface JsonFormField {
-//   fieldType?: string;
-//   placeholder?: string;
-//   fieldName?: string;
-//   formLabel?: string;
-//   selectOptions?: { label: string; value: string }[]; // Options for select dropdowns
-//   radioOptions?: { label: string; value: string }[]; // Options for radio buttons
-//   checkboxOptions?: { label: string; value: string }[]; // Options for checkboxes
-// }
-
-// interface JsonForm {
-//   formTitle?: string;
-//   formSubheading?: string;
-//   formFields?: JsonFormField[];
-// }
-
-// interface FormUiProps {
-//   jsonForm?: JsonForm;
-//   onFieldUpdate: (updatedField: Partial<JsonFormField>, index: number) => void;
-// }
-
-// const FormUi: React.FC<FormUiProps> = ({ jsonForm, onFieldUpdate }) => {
-//   const handleUpdate = (index: number, updatedField: Partial<JsonFormField>) => {
-//     onFieldUpdate(updatedField, index);
-//   };
-
-//   return (
-//     <div className="border p-5 rounded-md">
-//       <h1 className="font-bold text-center text-2xl">
-//         {jsonForm?.formTitle || "Untitled Form"}
-//       </h1>
-//       <h2 className="text-center text-xl">
-//         {jsonForm?.formSubheading || "No heading provided"}
-//       </h2>
-//       {jsonForm?.formFields?.map((formField, index) => (
-//         <div key={index} className="my-4">
-//           <div className="flex justify-between">
-//             <label>{formField?.formLabel || `Field ${index + 1}`}</label>
-//             <FieldEdit
-//               defaultValue={formField}
-//               onUpdate={(updatedField) => handleUpdate(index, updatedField)}
-//             />
-//           </div>
-
-//           {formField?.fieldType === "select" && formField?.selectOptions ? (
-//             <Select>
-//               <SelectTrigger className="w-full">
-//                 <SelectValue placeholder={formField.placeholder || "Select"} />
-//               </SelectTrigger>
-//               <SelectContent>
-//                 {formField.selectOptions.map((option, idx) => (
-//                   <SelectItem key={idx} value={option.value}>
-//                     {option.label}
-//                   </SelectItem>
-//                 ))}
-//               </SelectContent>
-//             </Select>
-//           ) : formField?.fieldType === "radio" && formField?.radioOptions ? (
-//             <RadioGroup defaultValue={formField.radioOptions[0]?.value || ""}>
-//               {formField.radioOptions.map((radioOption, idx) => (
-//                 <div key={idx} className="flex items-center space-x-2">
-//                   <RadioGroupItem
-//                     value={radioOption.value}
-//                     id={`radio-${index}-${idx}`}
-//                   />
-//                   <Label htmlFor={`radio-${index}-${idx}`}>
-//                     {radioOption.label}
-//                   </Label>
-//                 </div>
-//               ))}
-//             </RadioGroup>
-//           ) : formField?.fieldType === "checkbox" &&
-//             formField?.checkboxOptions ? (
-//             <div>
-//               {formField.checkboxOptions.map((checkboxOption, idx) => (
-//                 <div key={idx} className="flex items-center space-x-2">
-//                   <Checkbox id={`checkbox-${index}-${idx}`} />
-//                   <Label htmlFor={`checkbox-${index}-${idx}`}>
-//                     {checkboxOption.label}
-//                   </Label>
-//                 </div>
-//               ))}
-//             </div>
-//           ) : (
-//             <Input
-//               type={formField?.fieldType || "text"}
-//               placeholder={formField?.placeholder || ""}
-//               name={formField?.fieldName || `field-${index}`}
-//             />
-//           )}
-//         </div>
-//       ))}
-//     </div>
-//   );
-// };
-
-// export default FormUi;
-
-
+"use client"
+import React, { useState } from "react";
 import { Input } from "@/components/ui/input";
-import React from "react";
 import {
   Select,
   SelectContent,
@@ -123,7 +11,10 @@ import {
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Button } from "@/components/ui/button";
+import { Edit } from "lucide-react";
 import FieldEdit from "./FieldEdit";
+import AddFieldButton from "./AddFieldButton";
 
 interface JsonFormField {
   fieldType?: string;
@@ -144,21 +35,79 @@ interface JsonForm {
 interface FormUiProps {
   jsonForm?: JsonForm;
   onFieldUpdate: (updatedField: Partial<JsonFormField>, index: number) => void;
+  onFieldDelete: (index: number) => void;
+  onAddField: (fieldType: string) => void;
+  onTitleUpdate: (newTitle: string) => void;
+  onSubheadingUpdate: (newSubheading: string) => void;
 }
 
-const FormUi: React.FC<FormUiProps> = ({ jsonForm, onFieldUpdate }) => {
+const FormUi: React.FC<FormUiProps> = ({
+  jsonForm,
+  onFieldUpdate,
+  onFieldDelete,
+  onAddField,
+  onTitleUpdate,
+  onSubheadingUpdate,
+}) => {
+  const [editingTitle, setEditingTitle] = useState(false);
+  const [editingSubheading, setEditingSubheading] = useState(false);
+  const [tempTitle, setTempTitle] = useState(jsonForm?.formTitle || "Untitled Form");
+  const [tempSubheading, setTempSubheading] = useState(jsonForm?.formSubheading || "No subheading provided");
+
+  const handleTitleSave = () => {
+    onTitleUpdate(tempTitle);
+    setEditingTitle(false);
+  };
+
+  const handleSubheadingSave = () => {
+    onSubheadingUpdate(tempSubheading);
+    setEditingSubheading(false);
+  };
+
   const handleUpdate = (index: number, updatedField: Partial<JsonFormField>) => {
     onFieldUpdate(updatedField, index);
   };
 
   return (
     <div className="border p-5 rounded-md">
-      <h1 className="font-bold text-center text-2xl">
-        {jsonForm?.formTitle || "Untitled Form"}
-      </h1>
-      <h2 className="text-center text-xl">
-        {jsonForm?.formSubheading || "No heading provided"}
-      </h2>
+      <div className="mb-4">
+        {editingTitle ? (
+          <div className="flex items-center">
+            <Input
+              value={tempTitle}
+              onChange={(e) => setTempTitle(e.target.value)}
+              className="text-2xl font-bold"
+            />
+            <Button onClick={handleTitleSave} className="ml-2">Save</Button>
+          </div>
+        ) : (
+          <div className="flex items-center justify-center">
+            <h1 className="font-bold text-center text-2xl">{jsonForm?.formTitle || "Untitled Form"}</h1>
+            <Button variant="ghost" size="sm" onClick={() => setEditingTitle(true)} className="ml-2">
+              <Edit size={16} />
+            </Button>
+          </div>
+        )}
+      </div>
+      <div className="mb-4">
+        {editingSubheading ? (
+          <div className="flex items-center">
+            <Input
+              value={tempSubheading}
+              onChange={(e) => setTempSubheading(e.target.value)}
+              className="text-xl"
+            />
+            <Button onClick={handleSubheadingSave} className="ml-2">Save</Button>
+          </div>
+        ) : (
+          <div className="flex items-center justify-center">
+            <h2 className="text-center text-xl">{jsonForm?.formSubheading || "No subheading provided"}</h2>
+            <Button variant="ghost" size="sm" onClick={() => setEditingSubheading(true)} className="ml-2">
+              <Edit size={16} />
+            </Button>
+          </div>
+        )}
+      </div>
       {jsonForm?.formFields?.map((formField, index) => (
         <div key={index} className="my-4">
           <div className="flex justify-between">
@@ -166,6 +115,7 @@ const FormUi: React.FC<FormUiProps> = ({ jsonForm, onFieldUpdate }) => {
             <FieldEdit
               defaultValue={formField}
               onUpdate={(updatedField) => handleUpdate(index, updatedField)}
+              onDelete={() => onFieldDelete(index)} // Pass onDelete function
             />
           </div>
 
@@ -217,6 +167,9 @@ const FormUi: React.FC<FormUiProps> = ({ jsonForm, onFieldUpdate }) => {
           )}
         </div>
       ))}
+      <div className="mt-4">
+        <AddFieldButton onAddField={onAddField} />
+      </div>
     </div>
   );
 };

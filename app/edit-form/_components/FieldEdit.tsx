@@ -1,76 +1,3 @@
-// import React, { useState, useEffect } from "react";
-// import { Delete, Edit } from "lucide-react";
-// import {
-//   Popover,
-//   PopoverContent,
-//   PopoverTrigger,
-// } from "@/components/ui/popover";
-// import { Input } from "@/components/ui/input";
-// import { Button } from "@/components/ui/button";
-
-// interface FieldEditProps {
-//   defaultValue: {
-//     formLabel?: string;
-//     placeholder?: string;
-//   };
-//   onUpdate: (updatedField: { formLabel: string; placeholder: string }) => void;
-// }
-
-// const FieldEdit: React.FC<FieldEditProps> = ({ defaultValue, onUpdate }) => {
-//   const [formLabel, setLabel] = useState(defaultValue.formLabel || "");
-//   const [placeholder, setPlaceholder] = useState(
-//     defaultValue.placeholder || ""
-//   );
-
-//   useEffect(() => {
-//     setLabel(defaultValue.formLabel || "");
-//     setPlaceholder(defaultValue.placeholder || "");
-//   }, [defaultValue]);
-
-//   return (
-//     <div className="flex gap-2">
-//       <Popover>
-//         <PopoverTrigger>
-//           <Edit className="h-5 w-5 text-accent" />
-//         </PopoverTrigger>
-//         <PopoverContent>
-//           <h1>Edit Fields</h1>
-//           <div>
-//             <label>Label Name</label>
-//             <Input
-//               type="text"
-//               value={formLabel}
-//               onChange={(e) => setLabel(e.target.value)}
-//             />
-//           </div>
-//           <div>
-//             <label>Placeholder??</label>
-//             <Input
-//               type="text"
-//               value={placeholder}
-//               onChange={(e) => setPlaceholder(e.target.value)}
-//             />
-//           </div>
-//           <Button
-//             onClick={() =>
-//               onUpdate({
-//                 formLabel,
-//                 placeholder,
-//               })
-//             }
-//           >
-//             Update
-//           </Button>
-//         </PopoverContent>
-//       </Popover>
-//       <Delete className="h-5 w-5 text-red-500" />
-//     </div>
-//   );
-// };
-
-// export default FieldEdit;
-
-
 import React, { useState, useEffect } from "react";
 import { Delete, Edit } from "lucide-react";
 import {
@@ -80,6 +7,15 @@ import {
 } from "@/components/ui/popover";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+// import {
+//   AlertDialog,
+//   AlertDialogTrigger,
+//   AlertDialogContent,
+//   AlertDialogTitle,
+//   AlertDialogDescription,
+//   AlertDialogAction,
+//   AlertDialogCancel,
+// } from "@/components/ui/alert-dialog";
 
 interface FieldEditProps {
   defaultValue: {
@@ -87,11 +23,18 @@ interface FieldEditProps {
     placeholder?: string;
   };
   onUpdate: (updatedField: { formLabel: string; placeholder: string }) => void;
+  onDelete: () => void; // Add onDelete prop
 }
 
-const FieldEdit: React.FC<FieldEditProps> = ({ defaultValue, onUpdate }) => {
+const FieldEdit: React.FC<FieldEditProps> = ({
+  defaultValue,
+  onUpdate,
+  onDelete,
+}) => {
   const [formLabel, setLabel] = useState(defaultValue.formLabel || "");
-  const [placeholder, setPlaceholder] = useState(defaultValue.placeholder || "");
+  const [placeholder, setPlaceholder] = useState(
+    defaultValue.placeholder || ""
+  );
 
   useEffect(() => {
     setLabel(defaultValue.formLabel || "");
@@ -124,6 +67,34 @@ const FieldEdit: React.FC<FieldEditProps> = ({ defaultValue, onUpdate }) => {
           <Button onClick={handleSave}>Save</Button>
         </div>
       </PopoverContent>
+
+      {/* Alert Dialog for Deleting */}
+      {/* <AlertDialog>
+        <AlertDialogTrigger asChild>
+          <Button variant="outline" size="sm" className="text-red-500">
+            <Delete size={16} />
+          </Button>
+        </AlertDialogTrigger>
+        <AlertDialogContent>
+          <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+          <AlertDialogDescription>
+            This action will permanently delete the field. Do you want to
+            proceed?
+          </AlertDialogDescription>
+          <div className="flex justify-end space-x-2">
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={onDelete}>Delete</AlertDialogAction>
+          </div>
+        </AlertDialogContent>
+      </AlertDialog> */}
+      <Button
+        variant="outline"
+        size="sm"
+        className="text-red-500"
+        onClick={onDelete} // Directly trigger the delete action
+      >
+        <Delete size={16} />
+      </Button>
     </Popover>
   );
 };
