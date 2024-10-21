@@ -36,7 +36,7 @@ export default function RootLayout({
             <SignedOut>
               {/* <SignInButton /> */}
               <Link
-                href="/dashboard"
+                href="/createform"
                 className="text-sm font-medium hover:underline"
               >
                 Sign In

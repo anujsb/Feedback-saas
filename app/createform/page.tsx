@@ -7,13 +7,13 @@ const CreateFormPage = () => {
   return (
     <div
       className={cn(
-        "rounded-md flex flex-col md:flex-row flex-1 w-full overflow-hidden",
-        "h-screen"
+        "rounded-md flex flex-col md:flex-row flex-1 w-full overflow-hidden ",
+        "h-screen "
       )}
     >
       <SideBar />
       <div className="flex flex-1 flex-col items-center justify-center w-full">
-        <h1 className="text-lg font-medium mb-4">Create Form</h1>
+        {/* <h1 className="text-lg font-medium mb-4">Create Form</h1> */}
         <CreateForm />
       </div>
     </div>

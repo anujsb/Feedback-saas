@@ -1,138 +1,179 @@
 "use client";
-import React, { useState, useEffect } from "react";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "./ui/textarea";
 import { AiChatSession } from "@/configs/AiModel";
 import { useUser } from "@clerk/nextjs";
 import { db } from "@/configs";
 import { jsonForms } from "@/configs/schema";
 import moment from "moment";
 import { useRouter } from "next/navigation";
+import { PlaceholdersAndVanishInput } from "@/components/ui/placeholders-and-vanish-input";
 
 const CreateForm = () => {
-  const [openDialog, setOpenDialog] = useState(false);
-  const [userInput, setUserInput] = useState<string>("Create a waitlist form");
+  const [userInput, setUserInput] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-  const route = useRouter();
+  const router = useRouter();
+  const { isLoaded, isSignedIn, user } = useUser();
 
-  useEffect(() => {
-    console.log("CreateForm component mounted");
-    return () => console.log("CreateForm component unmounted");
-  }, []);
-
-  let userInfo;
-  try {
-    userInfo = useUser();
-    console.log("User info:", userInfo);
-  } catch (error) {
-    console.error("Error in useUser hook:", error);
-    setError("Error fetching user information");
-  }
-
-  const { isLoaded, isSignedIn, user } = userInfo || {};
+  const placeholders = [
+    "Create a waitlist form",
+    "Design a customer feedback survey",
+    "Build a job application form",
+    "Make an event registration form",
+    "Develop a product order form",
+  ];
 
   const PROMPT = `
-  On the basis of the following description, please provide a form in JSON format. The JSON object should include:
-  
-  - formTitle: A title for the form.
-  - formSubheading: A subheading for the form.
-  - formFields: An array of form field objects, each containing the following properties:
-    - fieldName: The unique name/identifier of the form field.
-    - placeholder: Placeholder text for the form field (if applicable).
-    - formLabel: The label displayed next to the form field.
-    - fieldType: The type of the field (e.g., text, email, select, checkbox, radio, etc.).
-    - required: A boolean indicating whether the field is required.
-  
-  If the fieldType is "select", please include an additional property called "selectOptions", which is an array of objects with the following fields:
-    - label: The label shown for each option.
-    - value: The value associated with each option.
-  
-  If the fieldType is "radio", please include an additional property called "radioOptions", which is an array of objects with the following fields:
-    - label: The label shown for each radio button.
-    - value: The value associated with each option.
-  
-  If the fieldType is "checkbox", please include an additional property called "checkboxOptions", which is an array of objects with the following fields:
-    - label: The label shown for each checkbox.
-    - value: The value associated with each option.
-  
-  The output should be structured in valid JSON format.
-  
-  Example JSON Format:
-  
-  {
-    "formTitle": "User Preferences",
-    "formSubheading": "Please fill in your preferences below.",
-    "formFields": [
-      {
-        "fieldName": "username",
-        "placeholder": "Enter your username",
-        "formLabel": "Username",
-        "fieldType": "text",
-        "required": true
-      },
-      {
-        "fieldName": "email",
-        "placeholder": "Enter your email",
-        "formLabel": "Email",
-        "fieldType": "email",
-        "required": true
-      },
-      {
-        "fieldName": "theme",
-        "placeholder": "Select theme",
-        "formLabel": "Theme",
-        "fieldType": "select",
-        "required": false,
-        "selectOptions": [
-          { "label": "Light", "value": "light" },
-          { "label": "Dark", "value": "dark" },
-          { "label": "System", "value": "system" }
-        ]
-      },
-      {
-        "fieldName": "notifications",
-        "formLabel": "Enable Notifications",
-        "fieldType": "checkbox",
-        "required": false,
-        "checkboxOptions": [
-          { "label": "Email", "value": "email" },
-          { "label": "SMS", "value": "sms" },
-          { "label": "Push", "value": "push" }
-        ]
-      },
-      {
-        "fieldName": "gender",
-        "formLabel": "Gender",
-        "fieldType": "radio",
-        "required": false,
-        "radioOptions": [
-          { "label": "Male", "value": "male" },
-          { "label": "Female", "value": "female" },
-          { "label": "Other", "value": "other" }
-        ]
-      }
-    ]
-  }
+    On the basis of the following description, please provide a form in JSON format. The JSON object should include:
+    
+    - formTitle: A title for the form.
+    - formSubheading: A subheading for the form.
+    - formFields: An array of form field objects, each containing the following properties:
+      - fieldName: The unique name/identifier of the form field.
+      - placeholder: Placeholder text for the form field (if applicable).
+      - formLabel: The label displayed next to the form field.
+      - fieldType: The type of the field (e.g., text, email, select, checkbox, radio, etc.).
+      - required: A boolean indicating whether the field is required.
+    
+    If the fieldType is "select", "radio", or "checkbox", include an additional property called "options", which is an array of objects with the following fields:
+      - label: The label shown for each option.
+      - value: The value associated with each option.
+    
+    The output should be structured in valid JSON format.
   `;
+
+  const fixedFeedbackForm = {
+    formTitle: "Customer Feedback Form",
+    formSubheading:
+      "We value your feedback. Please help us improve our services.",
+    formFields: [
+      {
+        fieldName: "name",
+        placeholder: "Enter your name",
+        formLabel: "Name",
+        fieldType: "text",
+        required: true,
+      },
+      {
+        fieldName: "email",
+        placeholder: "Enter your email",
+        formLabel: "Email",
+        fieldType: "email",
+        required: true,
+      },
+      {
+        fieldName: "rating",
+        formLabel: "How would you rate our service?",
+        fieldType: "radio",
+        required: true,
+        options: [
+          { label: "Excellent", value: "5" },
+          { label: "Good", value: "4" },
+          { label: "Average", value: "3" },
+          { label: "Poor", value: "2" },
+          { label: "Very Poor", value: "1" },
+        ],
+      },
+      {
+        fieldName: "feedback",
+        placeholder: "Please provide your feedback here",
+        formLabel: "Your Feedback",
+        fieldType: "textarea",
+        required: true,
+      },
+    ],
+  };
+
+  const fixedContactForm = {
+    formTitle: "Contact Us",
+    formSubheading: "Get in touch with us. We'd love to hear from you!",
+    formFields: [
+      {
+        fieldName: "name",
+        placeholder: "Enter your full name",
+        formLabel: "Full Name",
+        fieldType: "text",
+        required: true,
+      },
+      {
+        fieldName: "email",
+        placeholder: "Enter your email address",
+        formLabel: "Email Address",
+        fieldType: "email",
+        required: true,
+      },
+      {
+        fieldName: "phone",
+        placeholder: "Enter your phone number",
+        formLabel: "Phone Number",
+        fieldType: "tel",
+        required: false,
+      },
+      {
+        fieldName: "subject",
+        placeholder: "Enter the subject of your message",
+        formLabel: "Subject",
+        fieldType: "text",
+        required: true,
+      },
+      {
+        fieldName: "message",
+        placeholder: "Type your message here",
+        formLabel: "Message",
+        fieldType: "textarea",
+        required: true,
+      },
+    ],
+  };
+
+  const fixedWaitlistForm = {
+    formTitle: "Join Our Waitlist",
+    formSubheading: "Be the first to know when we launch!",
+    formFields: [
+      {
+        fieldName: "name",
+        placeholder: "Enter your full name",
+        formLabel: "Full Name",
+        fieldType: "text",
+        required: true,
+      },
+      {
+        fieldName: "email",
+        placeholder: "Enter your email address",
+        formLabel: "Email Address",
+        fieldType: "email",
+        required: true,
+      },
+      {
+        fieldName: "interest",
+        formLabel: "What are you most interested in?",
+        fieldType: "select",
+        required: true,
+        options: [
+          { label: "Early access to the product", value: "early_access" },
+          { label: "Beta testing", value: "beta_testing" },
+          { label: "Product updates", value: "updates" },
+          { label: "Pricing information", value: "pricing" },
+        ],
+      },
+      {
+        fieldName: "referral",
+        placeholder: "How did you hear about us?",
+        formLabel: "Referral Source",
+        fieldType: "text",
+        required: false,
+      },
+    ],
+  };
 
   const onCreateForm = async () => {
     if (!isLoaded || !isSignedIn) {
-      console.error("User is not signed in");
       setError("User is not signed in");
       return;
     }
 
-    console.log("User input:", userInput);
     setLoading(true);
-    setOpenDialog(false);
 
     try {
       const result = await AiChatSession("Description" + userInput + PROMPT);
@@ -149,9 +190,8 @@ const CreateForm = () => {
           })
           .returning({ id: jsonForms.id });
 
-        console.log("New Form ID:", resp[0].id);
         if (resp[0].id) {
-          route.push("/edit-form/" + resp[0].id);
+          router.push("/edit-form/" + resp[0].id);
         }
       }
     } catch (error) {
@@ -162,55 +202,85 @@ const CreateForm = () => {
     }
   };
 
-  if (error) {
-    return <div>Error: {error}</div>;
-  }
+  const createFixedForm = async (formData: any) => {
+    if (!isLoaded || !isSignedIn) {
+      setError("User is not signed in");
+      return;
+    }
 
-  if (!isLoaded) {
-    return <div>Loading...</div>;
-  }
+    setLoading(true);
 
-  if (!isSignedIn) {
-    return <div>Please sign in to create forms.</div>;
-  }
+    try {
+      const resp = await db
+        .insert(jsonForms)
+        .values({
+          jsonform: JSON.stringify(formData),
+          createdBy: user?.primaryEmailAddress?.emailAddress || "Unknown User",
+          createdAt: moment().format("DD/MM/YYYY"),
+        })
+        .returning({ id: jsonForms.id });
+
+      if (resp[0].id) {
+        router.push("/edit-form/" + resp[0].id);
+      }
+    } catch (error) {
+      console.error("Error creating form:", error);
+      setError("Error creating form");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setUserInput(e.target.value);
+  };
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    onCreateForm();
+  };
+
+  if (error) return <div>Error: {error}</div>;
+  if (!isLoaded) return <div>Loading...</div>;
+  if (!isSignedIn) return <div>Please sign in to create forms.</div>;
 
   return (
-    <div>
-      <Button onClick={() => setOpenDialog(true)} disabled={loading}>
-        {loading ? "Generating..." : "Generate Form"}
+    <div className="space-y-4 max-w-xl">
+      <Button
+        onClick={onCreateForm}
+        disabled={loading || !userInput.trim()}
+        className="w-full bg-transparent shadow-none text-xl disabled:text-text text-text"
+      >
+        {loading ? "Generating..." : "Generate Custom Form"}
       </Button>
-
-      <Dialog open={openDialog} onOpenChange={setOpenDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Create New Form</DialogTitle>
-            <DialogDescription>
-              <Textarea
-                className="m-2"
-                placeholder="Enter form details"
-                value={userInput}
-                onChange={(event) => setUserInput(event.target.value)}
-              />
-              <div className="flex gap-2 mt-4">
-                <Button
-                  onClick={() => setOpenDialog(false)}
-                  variant="destructive"
-                  disabled={loading}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  onClick={onCreateForm}
-                  variant="default"
-                  disabled={loading || !userInput.trim()}
-                >
-                  {loading ? "Creating..." : "Create"}
-                </Button>
-              </div>
-            </DialogDescription>
-          </DialogHeader>
-        </DialogContent>
-      </Dialog>
+      <PlaceholdersAndVanishInput
+        placeholders={placeholders}
+        onChange={handleChange}
+        onSubmit={handleSubmit}
+      />
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <Button
+          onClick={() => createFixedForm(fixedFeedbackForm)}
+          disabled={loading}
+          className="w-full bg-transparent rounded-full border border-secondary text-white hover:bg-secondary"
+        >
+          Create Feedback Form
+        </Button>
+        <Button
+          onClick={() => createFixedForm(fixedContactForm)}
+          disabled={loading}
+          className="w-full bg-transparent rounded-full border border-secondary text-white hover:bg-secondary"
+        >
+          Create Contact Form
+        </Button>
+        <Button
+          onClick={() => createFixedForm(fixedWaitlistForm)}
+          disabled={loading}
+          className="w-full bg-transparent rounded-full border border-secondary text-white hover:bg-secondary"
+        >
+          Create Waitlist Form
+        </Button>
+      </div>
     </div>
   );
 };
