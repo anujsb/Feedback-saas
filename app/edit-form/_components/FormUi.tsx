@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import React, { useState } from "react";
 import { Input } from "@/components/ui/input";
 import {
@@ -51,8 +51,12 @@ const FormUi: React.FC<FormUiProps> = ({
 }) => {
   const [editingTitle, setEditingTitle] = useState(false);
   const [editingSubheading, setEditingSubheading] = useState(false);
-  const [tempTitle, setTempTitle] = useState(jsonForm?.formTitle || "Untitled Form");
-  const [tempSubheading, setTempSubheading] = useState(jsonForm?.formSubheading || "No subheading provided");
+  const [tempTitle, setTempTitle] = useState(
+    jsonForm?.formTitle || "Untitled Form"
+  );
+  const [tempSubheading, setTempSubheading] = useState(
+    jsonForm?.formSubheading || "No subheading provided"
+  );
 
   const handleTitleSave = () => {
     onTitleUpdate(tempTitle);
@@ -64,26 +68,38 @@ const FormUi: React.FC<FormUiProps> = ({
     setEditingSubheading(false);
   };
 
-  const handleUpdate = (index: number, updatedField: Partial<JsonFormField>) => {
+  const handleUpdate = (
+    index: number,
+    updatedField: Partial<JsonFormField>
+  ) => {
     onFieldUpdate(updatedField, index);
   };
 
   return (
-    <div className="border p-5 rounded-md">
+    <div className="border border-secondary text-text p-5 rounded-md">
       <div className="mb-4">
         {editingTitle ? (
           <div className="flex items-center">
             <Input
               value={tempTitle}
               onChange={(e) => setTempTitle(e.target.value)}
-              className="text-2xl font-bold"
+              className="text-2xl border border-accent"
             />
-            <Button onClick={handleTitleSave} className="ml-2">Save</Button>
+            <Button onClick={handleTitleSave} className="ml-2">
+              Save
+            </Button>
           </div>
         ) : (
-          <div className="flex items-center justify-center">
-            <h1 className="font-bold text-center text-2xl">{jsonForm?.formTitle || "Untitled Form"}</h1>
-            <Button variant="ghost" size="sm" onClick={() => setEditingTitle(true)} className="ml-2">
+          <div className="flex items-center justify-between">
+            <h1 className="font-bold text-center text-2xl">
+              {jsonForm?.formTitle || "Untitled Form"}
+            </h1>
+            <Button
+              variant="default"
+              size="sm"
+              onClick={() => setEditingTitle(true)}
+              className="ml-2 hover:bg-accent"
+            >
               <Edit size={16} />
             </Button>
           </div>
@@ -95,14 +111,23 @@ const FormUi: React.FC<FormUiProps> = ({
             <Input
               value={tempSubheading}
               onChange={(e) => setTempSubheading(e.target.value)}
-              className="text-xl"
+              className="text-xl border border-accent"
             />
-            <Button onClick={handleSubheadingSave} className="ml-2">Save</Button>
+            <Button onClick={handleSubheadingSave} className="ml-2">
+              Save
+            </Button>
           </div>
         ) : (
           <div className="flex items-center justify-center">
-            <h2 className="text-center text-xl">{jsonForm?.formSubheading || "No subheading provided"}</h2>
-            <Button variant="ghost" size="sm" onClick={() => setEditingSubheading(true)} className="ml-2">
+            <h2 className="text-center text-xl">
+              {jsonForm?.formSubheading || "No subheading provided"}
+            </h2>
+            <Button
+              variant="default"
+              size="sm"
+              onClick={() => setEditingSubheading(true)}
+              className="ml-2 hover:bg-accent"
+            >
               <Edit size={16} />
             </Button>
           </div>
@@ -110,13 +135,16 @@ const FormUi: React.FC<FormUiProps> = ({
       </div>
       {jsonForm?.formFields?.map((formField, index) => (
         <div key={index} className="my-4">
-          <div className="flex justify-between">
+          <div className="flex justify-between my-2">
             <label>{formField?.formLabel || `Field ${index + 1}`}</label>
-            <FieldEdit
-              defaultValue={formField}
-              onUpdate={(updatedField) => handleUpdate(index, updatedField)}
-              onDelete={() => onFieldDelete(index)} // Pass onDelete function
-            />
+            <div className="flex flex-row gap-2">
+              <FieldEdit
+                defaultValue={formField}
+                onUpdate={(updatedField) => handleUpdate(index, updatedField)}
+                onDelete={() => onFieldDelete(index)} // Pass onDelete function
+
+              />
+            </div>
           </div>
 
           {formField?.fieldType === "select" && formField?.selectOptions ? (

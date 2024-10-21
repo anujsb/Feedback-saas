@@ -149,20 +149,17 @@ function EditForm({ params }: EditFormProps) {
 
   return (
     <div>
-      <div className="flex flex-1 flex-col items-center justify-center w-full mt-10 p-10">
-        <div>
-          <h2
+      <div className="w-full mt-10 p-10">
+        <div className="flex gap-8 items-center justify-between">
+          <Button
             className="flex gap-2 items-center my-5 cursor-pointer hover:font-bold"
             onClick={() => router.back()}
           >
             <ArrowLeftIcon /> Back
-          </h2>
-          <div>
+          </Button>
+          <div className="flex flex-row gap-2">
             <Link href={`/aiform/${params.formId}`} target="_blank">
-              <Button>
-                {" "}
-                <SquareArrowUpRightIcon /> Live preview
-              </Button>
+              <Button>Live preview</Button>
             </Link>
             <Link href={`/embed/${params.formId}`} target="_blank">
               <Button>Embed Link</Button>
@@ -175,7 +172,7 @@ function EditForm({ params }: EditFormProps) {
           <p>Loading form...</p>
         ) : (
           <div className="grid grid-flow-col grid-cols-3 gap-8 w-full">
-            <div className="col-span-2 border rounded-md min-h-screen h-full p-4 flex items-center justify-center">
+            <div className="col-span-2 rounded-md min-h-screen h-full p-4 flex items-center justify-center">
               {jsonForm ? (
                 <FormUi
                   jsonForm={jsonForm}
