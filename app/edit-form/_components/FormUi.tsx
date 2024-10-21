@@ -21,9 +21,7 @@ interface JsonFormField {
   placeholder?: string;
   fieldName?: string;
   formLabel?: string;
-  selectOptions?: { label: string; value: string }[]; // Options for select dropdowns
-  radioOptions?: { label: string; value: string }[]; // Options for radio buttons
-  checkboxOptions?: { label: string; value: string }[]; // Options for checkboxes
+  options?: { label: string; value: string }[]; // Unified options for select, radio, and checkbox
 }
 
 interface JsonForm {
@@ -141,47 +139,45 @@ const FormUi: React.FC<FormUiProps> = ({
               <FieldEdit
                 defaultValue={formField}
                 onUpdate={(updatedField) => handleUpdate(index, updatedField)}
-                onDelete={() => onFieldDelete(index)} // Pass onDelete function
-
+                onDelete={() => onFieldDelete(index)}
               />
             </div>
           </div>
 
-          {formField?.fieldType === "select" && formField?.selectOptions ? (
+          {formField?.fieldType === "select" && formField?.options ? (
             <Select>
               <SelectTrigger className="w-full">
                 <SelectValue placeholder={formField.placeholder || "Select"} />
               </SelectTrigger>
               <SelectContent>
-                {formField.selectOptions.map((option, idx) => (
+                {formField.options.map((option, idx) => (
                   <SelectItem key={idx} value={option.value}>
                     {option.label}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
-          ) : formField?.fieldType === "radio" && formField?.radioOptions ? (
-            <RadioGroup defaultValue={formField.radioOptions[0]?.value || ""}>
-              {formField.radioOptions.map((radioOption, idx) => (
+          ) : formField?.fieldType === "radio" && formField?.options ? (
+            <RadioGroup defaultValue={formField.options[0]?.value || ""}>
+              {formField.options.map((option, idx) => (
                 <div key={idx} className="flex items-center space-x-2">
                   <RadioGroupItem
-                    value={radioOption.value}
+                    value={option.value}
                     id={`radio-${index}-${idx}`}
                   />
                   <Label htmlFor={`radio-${index}-${idx}`}>
-                    {radioOption.label}
+                    {option.label}
                   </Label>
                 </div>
               ))}
             </RadioGroup>
-          ) : formField?.fieldType === "checkbox" &&
-            formField?.checkboxOptions ? (
+          ) : formField?.fieldType === "checkbox" && formField?.options ? (
             <div>
-              {formField.checkboxOptions.map((checkboxOption, idx) => (
+              {formField.options.map((option, idx) => (
                 <div key={idx} className="flex items-center space-x-2">
                   <Checkbox id={`checkbox-${index}-${idx}`} />
                   <Label htmlFor={`checkbox-${index}-${idx}`}>
-                    {checkboxOption.label}
+                    {option.label}
                   </Label>
                 </div>
               ))}

@@ -45,7 +45,7 @@ const AddFieldButton: React.FC<AddFieldButtonProps> = ({ onAddField }) => {
               <SelectItem value="checkbox">Checkbox</SelectItem>
             </SelectContent>
           </Select>
-          <Button onClick={handleAddField} disabled={!selectedFieldType}>
+          <Button variant="default" className='border border-accent' onClick={handleAddField} disabled={!selectedFieldType}>
             Add Field
           </Button>
         </div>

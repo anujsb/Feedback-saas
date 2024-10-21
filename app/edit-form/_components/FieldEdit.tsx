@@ -48,12 +48,12 @@ const FieldEdit: React.FC<FieldEditProps> = ({
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button variant="outline" size="sm">
+        <Button variant="default" size="sm">
           <Edit size={16} />
         </Button>
       </PopoverTrigger>
       <PopoverContent>
-        <div className="flex flex-col">
+        <div className="flex flex-col gap-2">
           <Input
             value={formLabel}
             onChange={(e) => setLabel(e.target.value)}
@@ -64,7 +64,7 @@ const FieldEdit: React.FC<FieldEditProps> = ({
             onChange={(e) => setPlaceholder(e.target.value)}
             placeholder="Placeholder"
           />
-          <Button onClick={handleSave}>Save</Button>
+          <Button variant="default" onClick={handleSave}>Save</Button>
         </div>
       </PopoverContent>
 
@@ -88,7 +88,7 @@ const FieldEdit: React.FC<FieldEditProps> = ({
         </AlertDialogContent>
       </AlertDialog> */}
       <Button
-        variant="outline"
+        variant="default"
         size="sm"
         className="text-red-500"
         onClick={onDelete} // Directly trigger the delete action

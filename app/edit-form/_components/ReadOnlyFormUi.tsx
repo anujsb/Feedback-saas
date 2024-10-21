@@ -16,9 +16,7 @@ interface JsonFormField {
   placeholder?: string;
   fieldName?: string;
   formLabel?: string;
-  selectOptions?: { label: string; value: string }[];
-  radioOptions?: { label: string; value: string }[];
-  checkboxOptions?: { label: string; value: string }[];
+  options?: { label: string; value: string }[]; // Unified options for select, radio, and checkbox
 }
 
 interface JsonForm {
@@ -34,7 +32,7 @@ interface ReadOnlyFormUiProps {
 
 const ReadOnlyFormUi: React.FC<ReadOnlyFormUiProps> = ({ jsonForm, onInputChange }) => {
   return (
-    <div className="border p-5 rounded-md">
+    <div className="">
       <div className="mb-4">
         <h1 className="font-bold text-center text-2xl">{jsonForm?.formTitle || "Untitled Form"}</h1>
       </div>
@@ -45,45 +43,45 @@ const ReadOnlyFormUi: React.FC<ReadOnlyFormUiProps> = ({ jsonForm, onInputChange
         <div key={index} className="my-4">
           <Label>{formField?.formLabel || `Field ${index + 1}`}</Label>
 
-          {formField?.fieldType === "select" && formField?.selectOptions ? (
+          {formField?.fieldType === "select" && formField?.options ? (
             <Select onValueChange={(value) => onInputChange(formField.fieldName || `field-${index}`, value)}>
               <SelectTrigger className="w-full">
                 <SelectValue placeholder={formField.placeholder || "Select"} />
               </SelectTrigger>
               <SelectContent>
-                {formField.selectOptions.map((option, idx) => (
+                {formField.options.map((option, idx) => (
                   <SelectItem key={idx} value={option.value}>
                     {option.label}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
-          ) : formField?.fieldType === "radio" && formField?.radioOptions ? (
+          ) : formField?.fieldType === "radio" && formField?.options ? (
             <RadioGroup onValueChange={(value) => onInputChange(formField.fieldName || `field-${index}`, value)}>
-              {formField.radioOptions.map((radioOption, idx) => (
+              {formField.options.map((option, idx) => (
                 <div key={idx} className="flex items-center space-x-2">
                   <RadioGroupItem
-                    value={radioOption.value}
+                    value={option.value}
                     id={`radio-${index}-${idx}`}
                   />
                   <Label htmlFor={`radio-${index}-${idx}`}>
-                    {radioOption.label}
+                    {option.label}
                   </Label>
                 </div>
               ))}
             </RadioGroup>
-          ) : formField?.fieldType === "checkbox" && formField?.checkboxOptions ? (
+          ) : formField?.fieldType === "checkbox" && formField?.options ? (
             <div>
-              {formField.checkboxOptions.map((checkboxOption, idx) => (
+              {formField.options.map((option, idx) => (
                 <div key={idx} className="flex items-center space-x-2">
                   <Checkbox 
                     id={`checkbox-${index}-${idx}`}
                     onCheckedChange={(checked) => 
-                      onInputChange(formField.fieldName || `field-${index}`, checked ? checkboxOption.value : '')
+                      onInputChange(formField.fieldName || `field-${index}`, checked ? option.value : '')
                     }
                   />
                   <Label htmlFor={`checkbox-${index}-${idx}`}>
-                    {checkboxOption.label}
+                    {option.label}
                   </Label>
                 </div>
               ))}

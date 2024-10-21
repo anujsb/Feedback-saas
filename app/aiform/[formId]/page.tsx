@@ -5,7 +5,8 @@ import React, { useEffect, useState } from "react";
 import { db } from "@/configs";
 import { eq } from "drizzle-orm";
 import ReadOnlyFormUi from "@/app/edit-form/_components/ReadOnlyFormUi";
-import { useRouter } from 'next/navigation';
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
 
 interface LiveAiFormProps {
   params: {
@@ -50,9 +51,9 @@ const LiveAiForm: React.FC<LiveAiFormProps> = ({ params }) => {
   };
 
   const handleInputChange = (fieldName: string, value: string) => {
-    setFormData(prevData => ({
+    setFormData((prevData) => ({
       ...prevData,
-      [fieldName]: value
+      [fieldName]: value,
     }));
   };
 
@@ -63,11 +64,11 @@ const LiveAiForm: React.FC<LiveAiFormProps> = ({ params }) => {
         formId: Number(params.formId),
         submissionData: JSON.stringify(formData),
       });
-      alert('Form submitted successfully!');
-      router.push('/submissions');
+      alert("Form submitted successfully!");
+      router.push("/submissions");
     } catch (error) {
-      console.error('Error submitting form:', error);
-      alert('Error submitting form. Please try again.');
+      console.error("Error submitting form:", error);
+      alert("Error submitting form. Please try again.");
     }
   };
 
@@ -84,13 +85,12 @@ const LiveAiForm: React.FC<LiveAiFormProps> = ({ params }) => {
   }
 
   return (
-    <form onSubmit={handleSubmit}>
-      <ReadOnlyFormUi 
-        jsonForm={jsonForm} 
-        onInputChange={handleInputChange}
-      />
-      <button type="submit">Submit</button>
-    </form>
+    <div className="w-full mt-10 p-10 flex flex-col items-center">
+      <form className="max-w-xl border border-secondary p-5 rounded-md " onSubmit={handleSubmit}>
+        <ReadOnlyFormUi jsonForm={jsonForm} onInputChange={handleInputChange} />
+        <Button variant="default" type="submit" className="mt-4">Submit</Button>
+      </form>
+    </div>
   );
 };
 
