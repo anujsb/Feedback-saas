@@ -8,6 +8,7 @@ import { jsonForms } from "@/configs/schema";
 import moment from "moment";
 import { useRouter } from "next/navigation";
 import { PlaceholdersAndVanishInput } from "@/components/ui/placeholders-and-vanish-input";
+import Image from "next/image";
 
 const CreateForm = () => {
   const [userInput, setUserInput] = useState<string>("");
@@ -241,7 +242,13 @@ const CreateForm = () => {
   };
 
   if (error) return <div>Error: {error}</div>;
-  if (!isLoaded) return <div>Loading...</div>;
+  if (!isLoaded)
+    return (
+      <div className="w-full h-screen flex flex-col items-center justify-center">
+        <Image src="/Loadertrans.gif" alt="my gif" height={150} width={150} />
+        Loading...
+      </div>
+    );
   if (!isSignedIn) return <div>Please sign in to create forms.</div>;
 
   return (

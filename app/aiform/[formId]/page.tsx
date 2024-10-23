@@ -7,6 +7,7 @@ import { eq } from "drizzle-orm";
 import ReadOnlyFormUi from "@/app/edit-form/_components/ReadOnlyFormUi";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import Image from "next/image";
 
 interface LiveAiFormProps {
   params: {
@@ -73,7 +74,12 @@ const LiveAiForm: React.FC<LiveAiFormProps> = ({ params }) => {
   };
 
   if (loading) {
-    return <div>Loading form data...</div>;
+    return (
+      <div className="w-full h-screen flex flex-col items-center justify-center">
+        <Image src="/Loadertrans.gif" alt="my gif" height={150} width={150} />
+        Loading form data...
+      </div>
+    );
   }
 
   if (!params?.formId) {
@@ -86,9 +92,14 @@ const LiveAiForm: React.FC<LiveAiFormProps> = ({ params }) => {
 
   return (
     <div className="w-full mt-10 p-10 flex flex-col items-center">
-      <form className="max-w-xl border border-secondary p-5 rounded-md " onSubmit={handleSubmit}>
+      <form
+        className="max-w-xl border border-secondary p-5 rounded-md "
+        onSubmit={handleSubmit}
+      >
         <ReadOnlyFormUi jsonForm={jsonForm} onInputChange={handleInputChange} />
-        <Button variant="default" type="submit" className="mt-4">Submit</Button>
+        <Button variant="default" type="submit" className="mt-4">
+          Submit
+        </Button>
       </form>
     </div>
   );

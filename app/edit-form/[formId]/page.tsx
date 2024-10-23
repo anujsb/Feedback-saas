@@ -159,7 +159,7 @@ function EditForm({ params }: EditFormProps) {
           </Button>
           <div className="flex flex-row gap-2">
             <Link href={`/aiform/${params.formId}`} target="_blank">
-              <Button>Live preview</Button>
+              <Button>Live preview <SquareArrowUpRightIcon /></Button>
             </Link>
             <Link href={`/embed/${params.formId}`} target="_blank">
               <Button>Embed Link</Button>

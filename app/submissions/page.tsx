@@ -20,26 +20,31 @@ import {
 } from "@/components/ui/table";
 import { db } from "@/configs";
 import { submissions, jsonForms } from "@/configs/schema";
-import { eq, sql } from "drizzle-orm";
+import { eq, sql, and } from "drizzle-orm";
 import Link from "next/link";
-import moment from "moment"; // Import moment.js
+import moment from "moment";
 import { Button } from "@/components/ui/button";
-import { ArrowBigRightIcon, ArrowRightIcon, FileJson } from "lucide-react";
+import { ArrowRightIcon, FileJson } from "lucide-react";
+import { useUser } from "@clerk/nextjs"; // Import Clerk's useUser for authentication
+import Image from "next/image";
 
 const SubmissionsPage = () => {
+  const { user } = useUser(); // Get the current logged-in user
   const [formsData, setFormsData] = useState<any[]>([]);
-  const [filteredForms, setFilteredForms] = useState<any[]>([]); // State to store filtered forms
+  const [filteredForms, setFilteredForms] = useState<any[]>([]);
   const [totalSubmissions, setTotalSubmissions] = useState<number>(0);
   const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState(""); // State for search query
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
-    fetchForms();
-  }, []);
+    if (user) {
+      fetchForms();
+    }
+  }, [user]);
 
   useEffect(() => {
     filterFormsByTitle(searchQuery);
-  }, [searchQuery, formsData]); // Filter forms whenever the search query or formsData changes
+  }, [searchQuery, formsData]);
 
   const fetchForms = async () => {
     try {
@@ -52,30 +57,35 @@ const SubmissionsPage = () => {
         })
         .from(jsonForms)
         .leftJoin(submissions, eq(jsonForms.id, submissions.formId))
+        .where(
+          eq(jsonForms.createdBy, user?.primaryEmailAddress?.emailAddress) // Filter by current user's email
+        )
         .groupBy(jsonForms.id, jsonForms.jsonform, jsonForms.createdAt)
         .orderBy(sql`COUNT(${submissions.id}) DESC`);
 
       const processedData = result.map((form) => {
         const parsedForm = JSON.parse(form.jsonform);
 
-        // Log the `createdAt` value to inspect the format
-        console.log("Raw createdAt value:", form.createdAt);
-
-        // Ensure `createdAt` is in a valid format before parsing
-        let createdAt;
+        let createdAt = "N/A";
         if (form.createdAt) {
-          // Try parsing with moment, assuming it could be an ISO string
-          createdAt = moment(form.createdAt).isValid()
-            ? moment(form.createdAt).format("DD/MM/YYYY")
-            : "Invalid Date Format";
+          // Attempt parsing various formats (e.g., ISO 8601, Unix)
+          const momentDate = moment(form.createdAt, [
+            moment.ISO_8601,
+            "YYYY-MM-DD HH:mm:ss",
+            "YYYY-MM-DD",
+          ]);
+
+          createdAt = momentDate.isValid()
+            ? momentDate.format("DD/MM/YYYY") // Output format you want
+            : "Invalid Date Format"; // Fallback for invalid dates
         } else {
-          createdAt = "N/A";
+          createdAt = "N/A"; // Handle missing dates
         }
 
         return {
           formId: form.formId,
           formTitle: parsedForm.formTitle || "Untitled Form",
-          createdAt: createdAt, // Display formatted date or "N/A" if the date is invalid
+          createdAt: createdAt,
           submissionCount: Number(form.submissionCount),
         };
       });
@@ -86,7 +96,7 @@ const SubmissionsPage = () => {
       );
 
       setFormsData(processedData);
-      setFilteredForms(processedData); // Initially set filteredForms to all forms
+      setFilteredForms(processedData);
       setTotalSubmissions(total);
     } catch (error) {
       console.error("Error fetching forms:", error);
@@ -104,7 +114,12 @@ const SubmissionsPage = () => {
   };
 
   if (loading) {
-    return <div>Loading forms...</div>;
+    return (
+      <div className="w-full h-screen flex flex-col items-center justify-center">
+        <Image src="/Loadertrans.gif" alt="my gif" height={150} width={150} />
+        Loading forms...
+      </div>
+    );
   }
 
   return (
@@ -119,14 +134,13 @@ const SubmissionsPage = () => {
         <div className="flex flex-col gap-4 w-full">
           <h1 className="text-start text-2xl font-bold">Forms & Submissions</h1>
 
-          {/* Search Bar */}
           <div className="flex flex-row gap-4 mt-4 ">
             <div className="relative w-full">
               <input
                 type="text"
                 placeholder="Search by form title..."
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)} // Update search query on input change
+                onChange={(e) => setSearchQuery(e.target.value)}
                 className="border border-accent rounded-md p-2 pl-10 w-full bg-primary"
               />
               <IconSearch className="absolute left-3 top-2.5 text-text h-5 w-5" />
@@ -137,7 +151,7 @@ const SubmissionsPage = () => {
             <div className="flex flex-col gap-2 border border-secondary p-4 rounded-md w-full">
               <IconUserBolt className="h-5 w-5 flex-shrink-0" />
               <h1>Total Forms</h1>
-              <h1>{filteredForms.length}</h1> {/* Show total filtered forms */}
+              <h1>{filteredForms.length}</h1>
             </div>
             <div className="flex flex-col gap-2 border border-secondary p-4 rounded-md w-full">
               <IconUserBolt className="h-5 w-5 flex-shrink-0" />
@@ -150,56 +164,48 @@ const SubmissionsPage = () => {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Form Title</TableHead>
-                  <TableHead>Created Date</TableHead>
-                  <TableHead>Submission Count</TableHead>
-                  <TableHead>Live Link</TableHead>
-                  <TableHead>Embed Link</TableHead>
-                  <TableHead>Edit</TableHead>
-                  <TableHead>View Submissions</TableHead>
+                  <TableHead className="text-center">Form Title</TableHead>
+                  <TableHead className="text-center">Created Date</TableHead>
+                  <TableHead className="text-center">Submission Count</TableHead>
+                  <TableHead className="text-center">Live Link</TableHead>
+                  <TableHead className="text-center">Embed Link</TableHead>
+                  <TableHead className="text-center">Edit</TableHead>
+                  <TableHead className="text-center">View Submissions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {filteredForms.map((form) => (
                   <TableRow key={form.formId}>
-                    <TableCell>{form.formTitle}</TableCell>
-                    <TableCell>{form.createdAt}</TableCell>{" "}
-                    {/* Display formatted date */}
+                    <TableCell className="text-start">{form.formTitle}</TableCell>
+                    <TableCell className="text-center">{form.createdAt}</TableCell>
                     <TableCell className="text-center">
                       {form.submissionCount}
                     </TableCell>
-                    <TableCell>
-                      <div className="flex flex-col gap-2">
-                        <Link
-                          className="flex"
-                          href={`/aiform/${form.formId}`}
-                          target="_blank"
-                        >
-                          <Button>
-                            {/* <IconLink className="cursor-pointer" /> */}
-                            <IconLink className="cursor-pointer" />
-                          </Button>
-                        </Link>
-                      </div>
+                    <TableCell className="text-center">
+                      <Link href={`/aiform/${form.formId}`} target="_blank">
+                        <Button variant="outline" className="border-secondary">
+                          <IconLink className="cursor-pointer h-4 w-4" />
+                        </Button>
+                      </Link>
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="text-center">
                       <Link href={`/embed/${form.formId}`} target="_blank">
-                        <Button>
-                          <FileJson className="cursor-pointer" />
+                        <Button variant="outline" className="border-secondary">
+                          <FileJson className="cursor-pointer h-4 w-4" />
                         </Button>
                       </Link>
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="text-center">
                       <Link href={`/edit-form/${form.formId}`}>
-                        <Button>
-                          <IconEdit className="cursor-pointer" />
+                        <Button variant="outline" className="border-secondary">
+                          <IconEdit className="cursor-pointer h-4 w-4" />
                         </Button>
                       </Link>
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="text-center">
                       <Link href={`/submissions/${form.formId}`}>
-                        <Button>
-                          <ArrowRightIcon className="cursor-pointer" />
+                        <Button variant="outline" className="border-secondary">
+                          <ArrowRightIcon className="cursor-pointer h-4 w-4" />
                         </Button>
                       </Link>
                     </TableCell>
@@ -210,7 +216,7 @@ const SubmissionsPage = () => {
                 <TableRow>
                   <TableCell colSpan={2}>Total</TableCell>
                   <TableCell>{totalSubmissions} Submissions</TableCell>
-                  <TableCell colSpan={3}></TableCell>
+                  <TableCell colSpan={4}></TableCell>
                 </TableRow>
               </TableFooter>
             </Table>

@@ -14,6 +14,7 @@ import {
 import { db } from "@/configs";
 import { submissions, jsonForms } from "@/configs/schema";
 import { eq } from "drizzle-orm";
+import Image from "next/image";
 
 interface FormSubmissionsProps {
   params: {
@@ -65,23 +66,30 @@ const FormSubmissionsPage: React.FC<FormSubmissionsProps> = ({ params }) => {
   };
 
   if (loading) {
-    return <div>Loading submissions...</div>;
+    return (
+      <div className="w-full h-screen flex flex-col items-center justify-center">
+        <Image src="/Loadertrans.gif" alt="my gif" height={150} width={150} />
+        Loading submissions...
+      </div>
+    );
   }
 
   // Get all unique field names from submissions
   const allFields = new Set<string>();
-  submissionData.forEach(submission => {
-    Object.keys(submission.submissionData).forEach(field => {
+  submissionData.forEach((submission) => {
+    Object.keys(submission.submissionData).forEach((field) => {
       allFields.add(field);
     });
   });
   const fieldNames = Array.from(allFields);
 
   return (
-    <div className={cn(
-      "rounded-md flex flex-col md:flex-row flex-1 w-full overflow-hidden",
-      "h-screen"
-    )}>
+    <div
+      className={cn(
+        "rounded-md flex flex-col md:flex-row flex-1 w-full overflow-hidden",
+        "h-screen"
+      )}
+    >
       <SideBar />
       <div className="flex flex-1 flex-col items-center m-20 w-full">
         <div className="flex flex-col gap-4 w-full">
