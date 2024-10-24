@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { AiChatSession } from "@/configs/AiModel";
 import { useUser } from "@clerk/nextjs";
@@ -10,44 +10,49 @@ import { useRouter } from "next/navigation";
 import { PlaceholdersAndVanishInput } from "@/components/ui/placeholders-and-vanish-input";
 import Image from "next/image";
 
-const CreateForm = () => {
-  const [userInput, setUserInput] = useState<string>("");
-  const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
-  const router = useRouter();
-  const { isLoaded, isSignedIn, user } = useUser();
+// Constants moved outside component to prevent recreation on each render
+const PLACEHOLDERS = [
+  "Create a waitlist form",
+  "Design a customer feedback survey",
+  "Build a job application form",
+  "Make an event registration form",
+  "Develop a product order form",
+];
 
-  const placeholders = [
-    "Create a waitlist form",
-    "Design a customer feedback survey",
-    "Build a job application form",
-    "Make an event registration form",
-    "Develop a product order form",
-  ];
+const PROMPT = `
+  Based on the following user input, please generate a form in JSON format. The JSON object should include:
+  
+  - formTitle: A title for the form.
+  - formSubheading: A subheading for the form.
+  - formFields: An array of field objects, each containing:
+    - fieldName: The unique name/identifier of the field.
+    - placeholder: Placeholder text for the field (if applicable).
+    - formLabel: The label displayed next to the field.
+    - fieldType: The type of the field (e.g., text, email, select, checkbox, radio).
+    - required: A boolean indicating whether the field is required.
+  
+  If the fieldType is "select", "radio", or "checkbox", include an "options" property with:
+    - label: The label shown for each option.
+    - value: The value associated with each option.
 
-  const PROMPT = `
-    On the basis of the following description, please provide a form in JSON format. The JSON object should include:
-    
-    - formTitle: A title for the form.
-    - formSubheading: A subheading for the form.
-    - formFields: An array of form field objects, each containing the following properties:
-      - fieldName: The unique name/identifier of the form field.
-      - placeholder: Placeholder text for the form field (if applicable).
-      - formLabel: The label displayed next to the form field.
-      - fieldType: The type of the field (e.g., text, email, select, checkbox, radio, etc.).
-      - required: A boolean indicating whether the field is required.
-    
-    If the fieldType is "select", "radio", or "checkbox", include an additional property called "options", which is an array of objects with the following fields:
-      - label: The label shown for each option.
-      - value: The value associated with each option.
-    
-    The output should be structured in valid JSON format.
-  `;
+  Example options:
+  options: [
+      { label: "Excellent", value: "5" },
+      { label: "Good", value: "4" },
+      { label: "Average", value: "3" },
+      { label: "Poor", value: "2" },
+      { label: "Very Poor", value: "1" },
+    ],
 
-  const fixedFeedbackForm = {
+  Ensure that the output is structured in valid JSON format.
+`;
+
+
+// Predefined forms moved outside component
+const FIXED_FORMS = {
+  feedback: {
     formTitle: "Customer Feedback Form",
-    formSubheading:
-      "We value your feedback. Please help us improve our services.",
+    formSubheading: "We value your feedback. Please help us improve our services.",
     formFields: [
       {
         fieldName: "name",
@@ -84,9 +89,8 @@ const CreateForm = () => {
         required: true,
       },
     ],
-  };
-
-  const fixedContactForm = {
+  },
+  contact: {
     formTitle: "Contact Us",
     formSubheading: "Get in touch with us. We'd love to hear from you!",
     formFields: [
@@ -126,9 +130,8 @@ const CreateForm = () => {
         required: true,
       },
     ],
-  };
-
-  const fixedWaitlistForm = {
+  },
+  waitlist: {
     formTitle: "Join Our Waitlist",
     formSubheading: "Be the first to know when we launch!",
     formFields: [
@@ -166,9 +169,32 @@ const CreateForm = () => {
         required: false,
       },
     ],
-  };
+  },
+};
 
-  const onCreateForm = async () => {
+const CreateForm = () => {
+  const [userInput, setUserInput] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
+  const { isLoaded, isSignedIn, user } = useUser();
+
+  const createFormInDB = useCallback(async (jsonData: string) => {
+    const resp = await db
+      .insert(jsonForms)
+      .values({
+        jsonform: jsonData,
+        createdBy: user?.primaryEmailAddress?.emailAddress || "Unknown User",
+        createdAt: moment().format("DD/MM/YYYY"),
+      })
+      .returning({ id: jsonForms.id });
+
+    if (resp[0].id) {
+      router.push("/edit-form/" + resp[0].id);
+    }
+  }, [user, router]);
+
+  const onCreateForm = useCallback(async () => {
     if (!isLoaded || !isSignedIn) {
       setError("User is not signed in");
       return;
@@ -179,21 +205,8 @@ const CreateForm = () => {
     try {
       const result = await AiChatSession("Description" + userInput + PROMPT);
       const aiResponse = await result.response.text();
-
       if (aiResponse) {
-        const resp = await db
-          .insert(jsonForms)
-          .values({
-            jsonform: aiResponse,
-            createdBy:
-              user?.primaryEmailAddress?.emailAddress || "Unknown User",
-            createdAt: moment().format("DD/MM/YYYY"),
-          })
-          .returning({ id: jsonForms.id });
-
-        if (resp[0].id) {
-          router.push("/edit-form/" + resp[0].id);
-        }
+        await createFormInDB(aiResponse);
       }
     } catch (error) {
       console.error("Error during AI session:", error);
@@ -201,54 +214,39 @@ const CreateForm = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [isLoaded, isSignedIn, userInput, createFormInDB]);
 
-  const createFixedForm = async (formData: any) => {
+  const createFixedForm = useCallback(async (formData: any) => {
     if (!isLoaded || !isSignedIn) {
       setError("User is not signed in");
       return;
     }
 
     setLoading(true);
-
     try {
-      const resp = await db
-        .insert(jsonForms)
-        .values({
-          jsonform: JSON.stringify(formData),
-          createdBy: user?.primaryEmailAddress?.emailAddress || "Unknown User",
-          createdAt: moment().format("DD/MM/YYYY"),
-        })
-        .returning({ id: jsonForms.id });
-
-      if (resp[0].id) {
-        router.push("/edit-form/" + resp[0].id);
-      }
+      await createFormInDB(JSON.stringify(formData));
     } catch (error) {
       console.error("Error creating form:", error);
       setError("Error creating form");
     } finally {
       setLoading(false);
     }
-  };
+  }, [isLoaded, isSignedIn, createFormInDB]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setUserInput(e.target.value);
-  };
-
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = useCallback((e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     onCreateForm();
-  };
+  }, [onCreateForm]);
 
   if (error) return <div>Error: {error}</div>;
-  if (!isLoaded)
+  if (!isLoaded) {
     return (
       <div className="w-full h-screen flex flex-col items-center justify-center">
         <Image src="/Loadertrans.gif" alt="my gif" height={150} width={150} />
         Loading...
       </div>
     );
+  }
   if (!isSignedIn) return <div>Please sign in to create forms.</div>;
 
   return (
@@ -261,27 +259,27 @@ const CreateForm = () => {
         {loading ? "Generating..." : "Generate Custom Form"}
       </Button>
       <PlaceholdersAndVanishInput
-        placeholders={placeholders}
-        onChange={handleChange}
+        placeholders={PLACEHOLDERS}
+        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setUserInput(e.target.value)}
         onSubmit={handleSubmit}
       />
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Button
-          onClick={() => createFixedForm(fixedFeedbackForm)}
+          onClick={() => createFixedForm(FIXED_FORMS.feedback)}
           disabled={loading}
           className="w-full bg-transparent rounded-full border border-secondary text-white hover:bg-secondary"
         >
           Create Feedback Form
         </Button>
         <Button
-          onClick={() => createFixedForm(fixedContactForm)}
+          onClick={() => createFixedForm(FIXED_FORMS.contact)}
           disabled={loading}
           className="w-full bg-transparent rounded-full border border-secondary text-white hover:bg-secondary"
         >
           Create Contact Form
         </Button>
         <Button
-          onClick={() => createFixedForm(fixedWaitlistForm)}
+          onClick={() => createFixedForm(FIXED_FORMS.waitlist)}
           disabled={loading}
           className="w-full bg-transparent rounded-full border border-secondary text-white hover:bg-secondary"
         >

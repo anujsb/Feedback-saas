@@ -7,7 +7,7 @@ const CreateFormPage = () => {
   return (
     <div
       className={cn(
-        "rounded-md flex flex-col md:flex-row flex-1 w-full overflow-hidden ",
+        "rounded-md flex flex-col md:flex-row flex-1 overflow-hidden ",
         "h-screen "
       )}
     >
