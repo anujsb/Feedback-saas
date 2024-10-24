@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React from "react";
+import { useEffect, useState, useMemo } from "react";
 import { SideBar } from "@/components/SideBar";
 import { cn } from "@/lib/utils";
 import {
@@ -16,78 +17,111 @@ import { submissions, jsonForms } from "@/configs/schema";
 import { eq } from "drizzle-orm";
 import Image from "next/image";
 
+interface FormSubmission {
+  id: number;
+  // createdAt: Date | string; // Updated to accept both Date and string
+  createdAt: Date;
+  submissionData: Record<string, string>;
+}
+
 interface FormSubmissionsProps {
   params: {
     formId?: string;
   };
 }
 
+const LoadingSpinner = () => (
+  <div className="w-full h-screen flex flex-col items-center justify-center">
+    <Image src="/Loadertrans.gif" alt="Loading..." height={150} width={150} />
+    <span>Loading submissions...</span>
+  </div>
+);
+
 const FormSubmissionsPage: React.FC<FormSubmissionsProps> = ({ params }) => {
-  const [submissionData, setSubmissionData] = useState<any[]>([]);
+  const [submissionData, setSubmissionData] = useState<FormSubmission[]>([]);
   const [formTitle, setFormTitle] = useState<string>("");
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    if (params?.formId) {
-      fetchFormSubmissions();
-    }
-  }, [params]);
-
-  const fetchFormSubmissions = async () => {
+  const formatDate = (dateString: string | Date): string => {
     try {
-      // First, fetch the form details to get the title
-      const formResult = await db
-        .select()
-        .from(jsonForms)
-        .where(eq(jsonForms.id, Number(params.formId)));
+      const date = new Date(dateString);
 
-      if (formResult && formResult.length > 0) {
-        const parsedForm = JSON.parse(formResult[0].jsonform);
-        setFormTitle(parsedForm.formTitle || "Untitled Form");
+      // Check if the date is valid
+      if (isNaN(date.getTime())) {
+        return "Invalid Date";
       }
 
-      // Then fetch all submissions for this form
-      const result = await db
-        .select()
-        .from(submissions)
-        .where(eq(submissions.formId, Number(params.formId)));
-
-      const processedData = result.map((item) => ({
-        ...item,
-        submissionData: JSON.parse(item.submissionData),
-      }));
-
-      setSubmissionData(processedData);
+      // Format the date using Intl.DateTimeFormat
+      return new Intl.DateTimeFormat("en-GB", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      }).format(date);
     } catch (error) {
-      console.error("Error fetching submissions:", error);
-    } finally {
-      setLoading(false);
+      console.error("Error formatting date:", error);
+      return "Invalid Date";
     }
   };
 
-  if (loading) {
-    return (
-      <div className="w-full h-screen flex flex-col items-center justify-center">
-        <Image src="/Loadertrans.gif" alt="my gif" height={150} width={150} />
-        Loading submissions...
-      </div>
-    );
-  }
+  useEffect(() => {
+    const fetchFormSubmissions = async () => {
+      if (!params?.formId) return;
 
-  // Get all unique field names from submissions
-  const allFields = new Set<string>();
-  submissionData.forEach((submission) => {
-    Object.keys(submission.submissionData).forEach((field) => {
-      allFields.add(field);
+      try {
+        const [formResult, submissionsResult] = await Promise.all([
+          db
+            .select()
+            .from(jsonForms)
+            .where(eq(jsonForms.id, Number(params.formId))),
+          db
+            .select()
+            .from(submissions)
+            .where(eq(submissions.formId, Number(params.formId))),
+        ]);
+
+        if (formResult?.[0]) {
+          const parsedForm = JSON.parse(formResult[0].jsonform);
+          setFormTitle(parsedForm.formTitle || "Untitled Form");
+        }
+
+        const processedData: FormSubmission[] = submissionsResult.map(
+          (item) => ({
+            id: item.id,
+            // createdAt: new Date(item.createdAt),
+            createdAt: new Date(item.createdAt),
+            submissionData: JSON.parse(item.submissionData),
+          })
+        );
+
+        setSubmissionData(processedData);
+      } catch (error) {
+        console.error("Error fetching submissions:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchFormSubmissions();
+  }, [params?.formId]);
+
+  const fieldNames = useMemo(() => {
+    const allFields = new Set<string>();
+    submissionData.forEach((submission) => {
+      Object.keys(submission.submissionData).forEach((field) => {
+        allFields.add(field);
+      });
     });
-  });
-  const fieldNames = Array.from(allFields);
+    return Array.from(allFields);
+  }, [submissionData]);
+
+  if (loading) return <LoadingSpinner />;
 
   return (
     <div
       className={cn(
-        "rounded-md flex flex-col md:flex-row flex-1 w-full overflow-hidden",
-        "h-screen"
+        "rounded-md flex flex-col md:flex-row flex-1 w-full overflow-hidden h-screen"
       )}
     >
       <SideBar />
@@ -116,7 +150,10 @@ const FormSubmissionsPage: React.FC<FormSubmissionsProps> = ({ params }) => {
                   <TableRow key={submission.id}>
                     <TableCell>{submission.id}</TableCell>
                     <TableCell>
-                      {new Date(submission.createdAt).toLocaleDateString()}
+                      {/* {submission.createdAt instanceof Date
+                        ? submission.createdAt.toLocaleDateString()
+                        : new Date(submission.createdAt).toLocaleDateString()} */}
+                      {formatDate(submission.createdAt)}
                     </TableCell>
                     {fieldNames.map((field) => (
                       <TableCell key={field}>

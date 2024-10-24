@@ -469,8 +469,12 @@ const SubmissionsPage: React.FC = () => {
                     <ActionButton href={`/edit-form/${form.formId}`} icon={IconEdit} />
                   </TableCell>
                   <TableCell className="text-center">
-                    <ActionButton href={`/submissions/${form.formId}`} icon={ArrowRightIcon} />
-                  </TableCell>
+             <Link href={`/submissions/${form.formId}`}>
+              <Button variant="outline" className="border-secondary">
+                   <ArrowRightIcon className="cursor-pointer h-4 w-4" />
+                 </Button>
+               </Link>
+               </TableCell>
                 </TableRow>
               ))}
             </TableBody>
@@ -489,3 +493,13 @@ const SubmissionsPage: React.FC = () => {
 };
 
 export default SubmissionsPage;
+
+
+
+{/* <TableCell className="text-center">
+             <Link href={`/submissions/${form.formId}`}>
+              <Button variant="outline" className="border-secondary">
+                   <ArrowRightIcon className="cursor-pointer h-4 w-4" />
+                 </Button>
+               </Link>
+               </TableCell> */}
