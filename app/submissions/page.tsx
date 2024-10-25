@@ -318,7 +318,7 @@ const ActionButton: React.FC<ActionButtonProps> = ({ href, icon: Icon }) => (
 
 const LoadingSpinner: React.FC = () => (
   <div className="w-full h-screen flex flex-col items-center justify-center">
-    <Image src="/Loadertrans.gif" alt="Loading" height={150} width={150} priority />
+    <Image src="/Loadertrans.gif" alt="Loading" height={150} width={150} priority unoptimized/>
     Loading forms...
   </div>
 );

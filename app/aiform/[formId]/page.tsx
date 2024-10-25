@@ -51,12 +51,19 @@ const LiveAiForm: React.FC<LiveAiFormProps> = ({ params }) => {
     }
   };
 
+  // const handleInputChange = (fieldName: string, value: string) => {
+  //   setFormData((prevData) => ({
+  //     ...prevData,
+  //     [fieldName]: value,
+  //   }));
+  // };
   const handleInputChange = (fieldName: string, value: string) => {
-    setFormData((prevData) => ({
+    setFormData((prevData: Record<string, string>) => ({
       ...prevData,
       [fieldName]: value,
     }));
   };
+  
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -76,7 +83,7 @@ const LiveAiForm: React.FC<LiveAiFormProps> = ({ params }) => {
   if (loading) {
     return (
       <div className="w-full h-screen flex flex-col items-center justify-center">
-        <Image src="/Loadertrans.gif" alt="my gif" height={150} width={150} />
+        <Image src="/Loadertrans.gif" alt="my gif" height={150} width={150} unoptimized/>
         Loading form data...
       </div>
     );

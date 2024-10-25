@@ -14,7 +14,7 @@ import {
   AlertDialogDescription,
   AlertDialogAction,
   AlertDialogCancel,
-} from "@/components/ui/alert-dialog"; // Adjust path as necessary
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { SquareArrowUpRightIcon } from "lucide-react";
 import Link from "next/link";
@@ -25,10 +25,19 @@ interface EditFormProps {
   };
 }
 
+interface FormField {
+  fieldType: string;
+  formLabel: string;
+  placeholder: string;
+  fieldName: string;
+  [key: string]: any;
+}
+
 interface JsonForm {
   formTitle?: string;
   formHeading?: string;
-  formFields?: { [key: string]: any }[]; // Define the form fields as an array of objects
+  formSubheading?: string;
+  formFields: FormField[];
 }
 
 function EditForm({ params }: EditFormProps) {
@@ -55,7 +64,7 @@ function EditForm({ params }: EditFormProps) {
         .from(jsonForms)
         .where(
           and(
-            eq(jsonForms.id, params?.formId),
+            eq(jsonForms.id, parseInt(params.formId, 10)), // Convert string to number
             eq(
               jsonForms.createdBy,
               user?.primaryEmailAddress?.emailAddress as string
@@ -65,7 +74,12 @@ function EditForm({ params }: EditFormProps) {
       if (result.length === 0) {
         throw new Error("Form not found");
       }
-      setJsonForm(JSON.parse(result[0].jsonform)); // Assuming jsonform is a string that needs to be parsed
+      const parsedForm = JSON.parse(result[0].jsonform) as JsonForm;
+      // Ensure formFields is always an array
+      setJsonForm({
+        ...parsedForm,
+        formFields: parsedForm.formFields || [],
+      });
     } catch (error) {
       console.error("Error fetching form data:", error);
       setError("Unable to fetch form data. Please try again later.");
@@ -79,19 +93,19 @@ function EditForm({ params }: EditFormProps) {
       await db
         .update(jsonForms)
         .set({ jsonform: JSON.stringify(updatedForm) })
-        .where(eq(jsonForms.id, params?.formId));
+        .where(eq(jsonForms.id, parseInt(params.formId, 10))); // Convert string to number
     } catch (error) {
       console.error("Error updating form data:", error);
     }
   };
 
-  const onFieldUpdate = (updatedField: any, index: number) => {
+  const onFieldUpdate = (updatedField: Partial<FormField>, index: number) => {
     if (jsonForm) {
       const updatedFields = [...jsonForm.formFields];
       updatedFields[index] = { ...updatedFields[index], ...updatedField };
       const updatedForm = { ...jsonForm, formFields: updatedFields };
       setJsonForm(updatedForm);
-      updateFormInDb(updatedForm); // Update form in the DB
+      updateFormInDb(updatedForm);
     }
   };
 
@@ -102,20 +116,20 @@ function EditForm({ params }: EditFormProps) {
 
   const confirmDelete = async () => {
     if (jsonForm && deletingIndex !== null) {
-      const updatedFields = jsonForm.formFields!.filter(
+      const updatedFields = jsonForm.formFields.filter(
         (_, idx) => idx !== deletingIndex
       );
       const updatedForm = { ...jsonForm, formFields: updatedFields };
       setJsonForm(updatedForm);
-      await updateFormInDb(updatedForm); // Update form in the DB
+      await updateFormInDb(updatedForm);
       setIsAlertOpen(false);
-      setDeletingIndex(null); // Reset deleting index
+      setDeletingIndex(null);
     }
   };
 
   const onAddField = async (fieldType: string) => {
     if (jsonForm) {
-      const newField = {
+      const newField: FormField = {
         fieldType,
         formLabel: `New ${
           fieldType.charAt(0).toUpperCase() + fieldType.slice(1)
@@ -124,7 +138,7 @@ function EditForm({ params }: EditFormProps) {
         fieldName: `new_${fieldType}_${Date.now()}`,
       };
 
-      const updatedFields = [...(jsonForm.formFields || []), newField];
+      const updatedFields = [...jsonForm.formFields, newField];
       const updatedForm = { ...jsonForm, formFields: updatedFields };
       setJsonForm(updatedForm);
       await updateFormInDb(updatedForm);
@@ -193,7 +207,6 @@ function EditForm({ params }: EditFormProps) {
         )}
       </div>
 
-      {/* Alert Dialog for Confirmation */}
       <AlertDialog open={isAlertOpen} onOpenChange={setIsAlertOpen}>
         <AlertDialogContent>
           <AlertDialogTitle>Delete Field</AlertDialogTitle>

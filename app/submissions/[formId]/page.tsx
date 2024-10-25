@@ -32,7 +32,13 @@ interface FormSubmissionsProps {
 
 const LoadingSpinner = () => (
   <div className="w-full h-screen flex flex-col items-center justify-center">
-    <Image src="/Loadertrans.gif" alt="Loading..." height={150} width={150} />
+    <Image
+      src="/Loadertrans.gif"
+      alt="Loading..."
+      height={150}
+      width={150}
+      unoptimized
+    />
     <span>Loading submissions...</span>
   </div>
 );

@@ -47,12 +47,12 @@ const PROMPT = `
   Ensure that the output is structured in valid JSON format.
 `;
 
-
 // Predefined forms moved outside component
 const FIXED_FORMS = {
   feedback: {
     formTitle: "Customer Feedback Form",
-    formSubheading: "We value your feedback. Please help us improve our services.",
+    formSubheading:
+      "We value your feedback. Please help us improve our services.",
     formFields: [
       {
         fieldName: "name",
@@ -179,20 +179,23 @@ const CreateForm = () => {
   const router = useRouter();
   const { isLoaded, isSignedIn, user } = useUser();
 
-  const createFormInDB = useCallback(async (jsonData: string) => {
-    const resp = await db
-      .insert(jsonForms)
-      .values({
-        jsonform: jsonData,
-        createdBy: user?.primaryEmailAddress?.emailAddress || "Unknown User",
-        createdAt: moment().format("DD/MM/YYYY"),
-      })
-      .returning({ id: jsonForms.id });
+  const createFormInDB = useCallback(
+    async (jsonData: string) => {
+      const resp = await db
+        .insert(jsonForms)
+        .values({
+          jsonform: jsonData,
+          createdBy: user?.primaryEmailAddress?.emailAddress || "Unknown User",
+          createdAt: moment().format("DD/MM/YYYY"),
+        })
+        .returning({ id: jsonForms.id });
 
-    if (resp[0].id) {
-      router.push("/edit-form/" + resp[0].id);
-    }
-  }, [user, router]);
+      if (resp[0].id) {
+        router.push("/edit-form/" + resp[0].id);
+      }
+    },
+    [user, router]
+  );
 
   const onCreateForm = useCallback(async () => {
     if (!isLoaded || !isSignedIn) {
@@ -216,33 +219,45 @@ const CreateForm = () => {
     }
   }, [isLoaded, isSignedIn, userInput, createFormInDB]);
 
-  const createFixedForm = useCallback(async (formData: any) => {
-    if (!isLoaded || !isSignedIn) {
-      setError("User is not signed in");
-      return;
-    }
+  const createFixedForm = useCallback(
+    async (formData: any) => {
+      if (!isLoaded || !isSignedIn) {
+        setError("User is not signed in");
+        return;
+      }
 
-    setLoading(true);
-    try {
-      await createFormInDB(JSON.stringify(formData));
-    } catch (error) {
-      console.error("Error creating form:", error);
-      setError("Error creating form");
-    } finally {
-      setLoading(false);
-    }
-  }, [isLoaded, isSignedIn, createFormInDB]);
+      setLoading(true);
+      try {
+        await createFormInDB(JSON.stringify(formData));
+      } catch (error) {
+        console.error("Error creating form:", error);
+        setError("Error creating form");
+      } finally {
+        setLoading(false);
+      }
+    },
+    [isLoaded, isSignedIn, createFormInDB]
+  );
 
-  const handleSubmit = useCallback((e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    onCreateForm();
-  }, [onCreateForm]);
+  const handleSubmit = useCallback(
+    (e: React.FormEvent<HTMLFormElement>) => {
+      e.preventDefault();
+      onCreateForm();
+    },
+    [onCreateForm]
+  );
 
   if (error) return <div>Error: {error}</div>;
   if (!isLoaded) {
     return (
       <div className="w-full h-screen flex flex-col items-center justify-center">
-        <Image src="/Loadertrans.gif" alt="my gif" height={150} width={150} />
+        <Image
+          src="/Loadertrans.gif"
+          alt="my gif"
+          height={150}
+          width={150}
+          unoptimized
+        />
         Loading...
       </div>
     );
@@ -260,7 +275,9 @@ const CreateForm = () => {
       </Button>
       <PlaceholdersAndVanishInput
         placeholders={PLACEHOLDERS}
-        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setUserInput(e.target.value)}
+        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+          setUserInput(e.target.value)
+        }
         onSubmit={handleSubmit}
       />
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
