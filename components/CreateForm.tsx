@@ -195,15 +195,40 @@ const CreateForm = () => {
     },
     [user, router]
   );
+  const [lastRequestTime, setLastRequestTime] = useState(0);
+  
+  // const onCreateForm = useCallback(async () => {
+  //   if (!isLoaded || !isSignedIn) {
+  //     setError("User is not signed in");
+  //     return;
+  //   }
+
+  //   setLoading(true);
+
+    // try {
+    //   const result = await AiChatSession("Description" + userInput + PROMPT);
+    //   const aiResponse = await result.response.text();
+    //   if (aiResponse) {
+    //     await createFormInDB(aiResponse);
+    //   }
+    // } catch (error) {
+    //   console.error("Error during AI session:", error);
+    //   setError("Error creating form");
+    // } finally {
+    //   setLoading(false);
+    // }
+  // }, [isLoaded, isSignedIn, userInput, createFormInDB]);
 
   const onCreateForm = useCallback(async () => {
-    if (!isLoaded || !isSignedIn) {
-      setError("User is not signed in");
+    const currentTime = Date.now();
+    // Check if 10 seconds have passed since the last request
+    if (currentTime - lastRequestTime < 10000) {
+      setError("Please wait 10 seconds before making another request.");
       return;
     }
-
+  
     setLoading(true);
-
+    setLastRequestTime(currentTime);
     try {
       const result = await AiChatSession("Description" + userInput + PROMPT);
       const aiResponse = await result.response.text();
@@ -216,28 +241,48 @@ const CreateForm = () => {
     } finally {
       setLoading(false);
     }
-  }, [isLoaded, isSignedIn, userInput, createFormInDB]);
+  }, [isLoaded, isSignedIn, userInput, createFormInDB, lastRequestTime]);
+  
+  // const createFixedForm = useCallback(
+  //   async (formData: unknown) => {
+  //     if (!isLoaded || !isSignedIn) {
+  //       setError("User is not signed in");
+  //       return;
+  //     }
 
+  //     setLoading(true);
+  //     try {
+  //       await createFormInDB(JSON.stringify(formData));
+  //     } catch (error) {
+  //       console.error("Error creating form:", error);
+  //       setError("Error creating form");
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   },
+  //   [isLoaded, isSignedIn, createFormInDB]
+  // );
   const createFixedForm = useCallback(
     async (formData: unknown) => {
-      if (!isLoaded || !isSignedIn) {
-        setError("User is not signed in");
+      const currentTime = Date.now();
+      // Check if 10 seconds have passed since the last request
+      if (currentTime - lastRequestTime < 10000) {
+        setError("Please wait 10 seconds before making another request.");
         return;
       }
-
-      setLoading(true);
-      try {
-        await createFormInDB(JSON.stringify(formData));
-      } catch (error) {
-        console.error("Error creating form:", error);
-        setError("Error creating form");
-      } finally {
-        setLoading(false);
-      }
-    },
-    [isLoaded, isSignedIn, createFormInDB]
-  );
-
+  
+        setLoading(true);
+        try {
+          await createFormInDB(JSON.stringify(formData));
+        } catch (error) {
+          console.error("Error creating form:", error);
+          setError("Error creating form");
+        } finally {
+          setLoading(false);
+        }
+      },
+      [isLoaded, isSignedIn, createFormInDB, lastRequestTime]
+    );
   const handleSubmit = useCallback(
     (e: React.FormEvent<HTMLFormElement>) => {
       e.preventDefault();
