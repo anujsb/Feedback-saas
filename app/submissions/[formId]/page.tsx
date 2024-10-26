@@ -19,7 +19,6 @@ import Image from "next/image";
 
 interface FormSubmission {
   id: number;
-  // createdAt: Date | string; // Updated to accept both Date and string
   createdAt: Date;
   submissionData: Record<string, string>;
 }
@@ -52,12 +51,10 @@ const FormSubmissionsPage: React.FC<FormSubmissionsProps> = ({ params }) => {
     try {
       const date = new Date(dateString);
 
-      // Check if the date is valid
       if (isNaN(date.getTime())) {
         return "Invalid Date";
       }
 
-      // Format the date using Intl.DateTimeFormat
       return new Intl.DateTimeFormat("en-GB", {
         day: "2-digit",
         month: "2-digit",
@@ -68,6 +65,22 @@ const FormSubmissionsPage: React.FC<FormSubmissionsProps> = ({ params }) => {
     } catch (error) {
       console.error("Error formatting date:", error);
       return "Invalid Date";
+    }
+  };
+
+  const deleteSubmission = async (submissionId: number) => {
+    if (confirm("Are you sure you want to delete this submission?")) {
+      try {
+        await db
+          .delete(submissions)
+          .where(eq(submissions.id, submissionId));
+        // Update the state to remove the deleted submission
+        setSubmissionData((prevData) =>
+          prevData.filter((submission) => submission.id !== submissionId)
+        );
+      } catch (error) {
+        console.error("Error deleting submission:", error);
+      }
     }
   };
 
@@ -92,14 +105,11 @@ const FormSubmissionsPage: React.FC<FormSubmissionsProps> = ({ params }) => {
           setFormTitle(parsedForm.formTitle || "Untitled Form");
         }
 
-        const processedData: FormSubmission[] = submissionsResult.map(
-          (item) => ({
-            id: item.id,
-            // createdAt: new Date(item.createdAt),
-            createdAt: new Date(item.createdAt),
-            submissionData: JSON.parse(item.submissionData),
-          })
-        );
+        const processedData: FormSubmission[] = submissionsResult.map((item) => ({
+          id: item.id,
+          createdAt: new Date(item.createdAt),
+          submissionData: JSON.parse(item.submissionData),
+        }));
 
         setSubmissionData(processedData);
       } catch (error) {
@@ -149,23 +159,27 @@ const FormSubmissionsPage: React.FC<FormSubmissionsProps> = ({ params }) => {
                   {fieldNames.map((field) => (
                     <TableHead key={field}>{field}</TableHead>
                   ))}
+                  <TableHead>Actions</TableHead> {/* New Actions Column */}
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {submissionData.map((submission) => (
                   <TableRow key={submission.id}>
                     <TableCell>{submission.id}</TableCell>
-                    <TableCell>
-                      {/* {submission.createdAt instanceof Date
-                        ? submission.createdAt.toLocaleDateString()
-                        : new Date(submission.createdAt).toLocaleDateString()} */}
-                      {formatDate(submission.createdAt)}
-                    </TableCell>
+                    <TableCell>{formatDate(submission.createdAt)}</TableCell>
                     {fieldNames.map((field) => (
                       <TableCell key={field}>
                         {submission.submissionData[field] || "-"}
                       </TableCell>
                     ))}
+                    <TableCell>
+                      <button
+                        onClick={() => deleteSubmission(submission.id)}
+                        className="text-red-500 hover:underline"
+                      >
+                        Delete
+                      </button>
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
