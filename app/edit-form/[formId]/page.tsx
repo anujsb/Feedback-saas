@@ -30,7 +30,7 @@ interface FormField {
   formLabel: string;
   placeholder: string;
   fieldName: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 interface JsonForm {
@@ -53,6 +53,7 @@ function EditForm({ params }: EditFormProps) {
     if (user) {
       GetFormData();
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
   const GetFormData = async () => {

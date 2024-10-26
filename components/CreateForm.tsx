@@ -10,7 +10,6 @@ import { useRouter } from "next/navigation";
 import { PlaceholdersAndVanishInput } from "@/components/ui/placeholders-and-vanish-input";
 import Image from "next/image";
 
-// Constants moved outside component to prevent recreation on each render
 const PLACEHOLDERS = [
   "Create a waitlist form",
   "Design a customer feedback survey",
@@ -220,7 +219,7 @@ const CreateForm = () => {
   }, [isLoaded, isSignedIn, userInput, createFormInDB]);
 
   const createFixedForm = useCallback(
-    async (formData: any) => {
+    async (formData: unknown) => {
       if (!isLoaded || !isSignedIn) {
         setError("User is not signed in");
         return;

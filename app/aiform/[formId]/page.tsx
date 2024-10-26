@@ -1,7 +1,6 @@
 "use client";
-
 import { jsonForms, submissions } from "@/configs/schema";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { db } from "@/configs";
 import { eq } from "drizzle-orm";
 import ReadOnlyFormUi from "@/app/edit-form/_components/ReadOnlyFormUi";
@@ -15,22 +14,32 @@ interface LiveAiFormProps {
   };
 }
 
+interface FormField {
+  fieldType: string;
+  formLabel: string;
+  placeholder: string;
+  fieldName: string;
+  [key: string]: unknown;
+}
+
+interface JsonForm {
+  formTitle?: string;
+  formHeading?: string;
+  formSubheading?: string;
+  formFields: FormField[];
+}
+
+interface FormData {
+  [fieldName: string]: string;
+}
+
 const LiveAiForm: React.FC<LiveAiFormProps> = ({ params }) => {
-  const [jsonForm, setJsonForm] = useState<any>(null);
+  const [jsonForm, setJsonForm] = useState<JsonForm | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
-  const [formData, setFormData] = useState<any>({});
+  const [formData, setFormData] = useState<FormData>({});
   const router = useRouter();
 
-  useEffect(() => {
-    if (params?.formId) {
-      GetFormData();
-    } else {
-      console.error("Form ID is missing or undefined.");
-      setLoading(false);
-    }
-  }, [params]);
-
-  const GetFormData = async () => {
+  const GetFormData = useCallback(async () => {
     setLoading(true);
     try {
       const result = await db
@@ -39,8 +48,12 @@ const LiveAiForm: React.FC<LiveAiFormProps> = ({ params }) => {
         .where(eq(jsonForms.id, Number(params.formId)));
 
       if (result && result.length > 0) {
-        const parsedForm = JSON.parse(result[0].jsonform);
-        setJsonForm(parsedForm);
+        const parsedForm = JSON.parse(result[0].jsonform) as JsonForm;
+        // Ensure formFields is always an array
+        setJsonForm({
+          ...parsedForm,
+          formFields: parsedForm.formFields || [],
+        });
       } else {
         console.error("No form data found for the provided form ID.");
       }
@@ -49,21 +62,23 @@ const LiveAiForm: React.FC<LiveAiFormProps> = ({ params }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [params.formId]);
 
-  // const handleInputChange = (fieldName: string, value: string) => {
-  //   setFormData((prevData) => ({
-  //     ...prevData,
-  //     [fieldName]: value,
-  //   }));
-  // };
+  useEffect(() => {
+    if (params?.formId) {
+      GetFormData();
+    } else {
+      console.error("Form ID is missing or undefined.");
+      setLoading(false);
+    }
+  }, [params, GetFormData]);
+
   const handleInputChange = (fieldName: string, value: string) => {
-    setFormData((prevData: Record<string, string>) => ({
+    setFormData((prevData: FormData) => ({
       ...prevData,
       [fieldName]: value,
     }));
   };
-  
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -83,7 +98,13 @@ const LiveAiForm: React.FC<LiveAiFormProps> = ({ params }) => {
   if (loading) {
     return (
       <div className="w-full h-screen flex flex-col items-center justify-center">
-        <Image src="/Loadertrans.gif" alt="my gif" height={150} width={150} unoptimized/>
+        <Image 
+          src="/Loadertrans.gif" 
+          alt="Loading indicator" 
+          height={150} 
+          width={150} 
+          unoptimized
+        />
         Loading form data...
       </div>
     );
@@ -100,7 +121,7 @@ const LiveAiForm: React.FC<LiveAiFormProps> = ({ params }) => {
   return (
     <div className="w-full mt-10 p-10 flex flex-col items-center">
       <form
-        className="max-w-xl border border-secondary p-5 rounded-md "
+        className="max-w-xl border border-secondary p-5 rounded-md"
         onSubmit={handleSubmit}
       >
         <ReadOnlyFormUi jsonForm={jsonForm} onInputChange={handleInputChange} />
