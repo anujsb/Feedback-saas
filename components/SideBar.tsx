@@ -1,6 +1,6 @@
 "use client";
 import React, { useState } from "react";
-import { usePathname } from 'next/navigation';
+import { usePathname } from "next/navigation";
 import { Sidebar, SidebarBody, SidebarLink } from "./ui/sidebar";
 import {
   // IconArrowLeft,
@@ -47,14 +47,14 @@ export function SideBar() {
             {open ? <Logo /> : <LogoIcon />}
             <div className="mt-8 flex flex-col gap-2">
               {links.map((link, idx) => (
-                <SidebarLink 
-                  key={idx} 
-                  link={link} 
+                <SidebarLink
+                  key={idx}
+                  link={link}
                   className={`${
                     pathname === link.href
                       ? "bg-secondary px-1 rounded-lg"
                       : "bg-transparent px-1  rounded-lg"
-                  }`} 
+                  }`}
                   // Remove the isActive prop if not needed, or
                   // Update the component's props interface to include isActive: boolean
                 />
@@ -95,7 +95,7 @@ export const Logo = () => {
         animate={{ opacity: 1 }}
         className="font-medium  whitespace-pre"
       >
-        FEED LOOP
+        AI Form Generator.
       </motion.span>
     </Link>
   );

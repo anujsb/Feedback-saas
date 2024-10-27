@@ -181,22 +181,28 @@ const SubmissionsPage: React.FC = () => {
     [formatDate]
   );
 
-
   const deleteForm = useCallback(async (formId: number) => {
-    if (confirm("Are you sure you want to delete this form? This action cannot be undone.")) {
+    if (
+      confirm(
+        "Are you sure you want to delete this form? This action cannot be undone."
+      )
+    ) {
       try {
-        await db
-          .delete(jsonForms)
-          .where(eq(jsonForms.id, formId)); // Adjust this line according to your ORM's delete syntax
+        await db.delete(jsonForms).where(eq(jsonForms.id, formId)); // Adjust this line according to your ORM's delete syntax
 
         // Update state to remove the deleted form
-        setFormsData(prevForms => prevForms.filter(form => form.formId !== formId));
+        setFormsData((prevForms) =>
+          prevForms.filter((form) => form.formId !== formId)
+        );
       } catch (error) {
-        console.error("Error deleting form:", error instanceof Error ? error.message : "Unknown error");
+        console.error(
+          "Error deleting form:",
+          error instanceof Error ? error.message : "Unknown error"
+        );
       }
     }
   }, []);
-  
+
   const fetchForms = useCallback(async () => {
     if (!user?.primaryEmailAddress?.emailAddress) return;
 
@@ -238,8 +244,13 @@ const SubmissionsPage: React.FC = () => {
 
   if (loading) return <LoadingSpinner />;
 
-   return (
-    <div className={cn("rounded-md flex flex-col md:flex-row flex-1 w-full overflow-hidden", "h-full")}>
+  return (
+    <div
+      className={cn(
+        "rounded-md flex flex-col md:flex-row flex-1 w-full overflow-hidden",
+        "h-full"
+      )}
+    >
       <SideBar />
       <div className="flex flex-1 flex-col items-center m-20 w-full">
         <div className="flex flex-col gap-4 w-full">
@@ -257,8 +268,16 @@ const SubmissionsPage: React.FC = () => {
           </div>
 
           <div className="flex flex-row gap-4 mt-4">
-            <StatCard icon={IconUserBolt} title="Total Forms" value={filteredForms.length} />
-            <StatCard icon={IconUserBolt} title="Total Submissions" value={totalSubmissions} />
+            <StatCard
+              icon={IconUserBolt}
+              title="Total Forms"
+              value={filteredForms.length}
+            />
+            <StatCard
+              icon={IconUserBolt}
+              title="Total Submissions"
+              value={totalSubmissions}
+            />
           </div>
 
           <Table>
@@ -270,7 +289,8 @@ const SubmissionsPage: React.FC = () => {
                 <TableHead className="text-center">Live Link</TableHead>
                 <TableHead className="text-center">Embed Link</TableHead>
                 <TableHead className="text-center">Edit</TableHead>
-                <TableHead className="text-center">Delete</TableHead> {/* Add a header for delete */}
+                <TableHead className="text-center">Delete</TableHead>{" "}
+                {/* Add a header for delete */}
                 <TableHead className="text-center">View Submissions</TableHead>
               </TableRow>
             </TableHeader>
@@ -278,16 +298,29 @@ const SubmissionsPage: React.FC = () => {
               {filteredForms.map((form) => (
                 <TableRow key={form.formId}>
                   <TableCell className="text-start">{form.formTitle}</TableCell>
-                  <TableCell className="text-center">{form.createdAt}</TableCell>
-                  <TableCell className="text-center">{form.submissionCount}</TableCell>
                   <TableCell className="text-center">
-                    <ActionButton href={`/aiform/${form.formId}`} icon={IconLink} />
+                    {form.createdAt}
                   </TableCell>
                   <TableCell className="text-center">
-                    <ActionButton href={`/embed/${form.formId}`} icon={FileJson} />
+                    {form.submissionCount}
                   </TableCell>
                   <TableCell className="text-center">
-                    <ActionButton href={`/edit-form/${form.formId}`} icon={IconEdit} />
+                    <ActionButton
+                      href={`/aiform/${form.formId}`}
+                      icon={IconLink}
+                    />
+                  </TableCell>
+                  <TableCell className="text-center">
+                    <ActionButton
+                      href={`/embed/${form.formId}`}
+                      icon={FileJson}
+                    />
+                  </TableCell>
+                  <TableCell className="text-center">
+                    <ActionButton
+                      href={`/edit-form/${form.formId}`}
+                      icon={IconEdit}
+                    />
                   </TableCell>
                   <TableCell className="text-center">
                     <Button
