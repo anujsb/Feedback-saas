@@ -15,6 +15,9 @@ export default function Home() {
       </main> */}
       <Hero />
       <Steps />
+      <div className="h-screen">
+        hh
+      </div>
     </div>
   );
 }
