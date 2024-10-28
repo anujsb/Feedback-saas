@@ -32,7 +32,7 @@ export const Hero: React.FC = () => {
           className="mt-16 md:mt-32 lg:mt-40 w-full pointer-events-auto z-50"
         >
           <Video />
-          video
+          {/* video */}
         </div>
       </div>
     </div>

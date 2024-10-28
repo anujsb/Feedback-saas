@@ -16,8 +16,9 @@ import {
   AlertDialogCancel,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import { SquareArrowUpRightIcon } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 
 interface EditFormProps {
   params: {
@@ -53,7 +54,7 @@ function EditForm({ params }: EditFormProps) {
     if (user) {
       GetFormData();
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
   const GetFormData = async () => {
@@ -174,7 +175,9 @@ function EditForm({ params }: EditFormProps) {
           </Button>
           <div className="flex flex-row gap-2">
             <Link href={`/aiform/${params.formId}`} target="_blank">
-              <Button>Live preview <SquareArrowUpRightIcon /></Button>
+              <Button className="flex gap-2">
+                Live preview <ArrowUpRight className="w-5 h-5"/>
+              </Button>
             </Link>
             <Link href={`/embed/${params.formId}`} target="_blank">
               <Button>Embed Link</Button>
@@ -184,9 +187,19 @@ function EditForm({ params }: EditFormProps) {
         {error && <p className="text-red-500">{error}</p>}
 
         {loading ? (
-          <p>Loading form...</p>
+      <div className="w-full h-screen flex flex-col items-center">
+            <Image
+              src="/Loadertrans.gif"
+              alt="my gif"
+              height={150}
+              width={150}
+              unoptimized
+            />
+            Loading form...
+          </div>
         ) : (
-          <div className="grid grid-flow-col grid-cols-3 gap-8 w-full">
+          <div className="flex items-center justify-center w-full">
+            {/* <div className="grid grid-flow-col grid-cols-3 gap-8 w-full"> */}
             <div className="col-span-2 rounded-md min-h-screen h-full p-4 flex items-center justify-center">
               {jsonForm ? (
                 <FormUi
@@ -201,9 +214,9 @@ function EditForm({ params }: EditFormProps) {
                 <p>Form data is unavailable.</p>
               )}
             </div>
-            <div className="col-span-1 border rounded-md min-h-screen h-full p-4">
+            {/* <div className="col-span-1 border rounded-md min-h-screen h-full p-4">
               controller
-            </div>
+            </div> */}
           </div>
         )}
       </div>

@@ -65,14 +65,14 @@ export function SideBar() {
             <SidebarLink
               link={{
                 label: "21bubbles",
-                href: "#",
+                href: "https://21bubbles.com/",
                 icon: (
                   <Image
                     src="/21bubbles_logo.jpeg"
                     className="h-7 w-7 flex-shrink-0 rounded-full"
                     width={50}
                     height={50}
-                    alt="Avatar"
+                    alt="logo"
                   />
                 ),
               }}

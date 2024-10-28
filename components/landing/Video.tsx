@@ -1,3 +1,4 @@
+import Image from "next/image";
 import React from "react";
 
 const Video = () => {
@@ -11,16 +12,22 @@ const Video = () => {
           className="w-full h-full rounded-xl"
         ></iframe>
       </div> */}
-      <video width="1130" height="1240" autoPlay loop muted>
-        <source src="/video.mp4" type="video/mp4" />
+      {/* <video width="1130" height="1240" autoPlay loop muted> */}
+        {/* <source src="/video.mp4" type="video/mp4" /> */}
         {/* <track
         src="/path/to/captions.vtt"
         kind="subtitles"
         srcLang="en"
         label="English"
       /> */}
-        Your browser does not support the video tag.
-      </video>
+        {/* Your browser does not support the video tag. */}
+      {/* </video> */}
+      <Image
+              src="/form-demo.png"
+              alt="my gif"
+              width="1130" height="1240"
+              unoptimized
+            />
     </div>
   );
 };

@@ -1,4 +1,5 @@
 import { Hero } from "@/components/landing/Hero";
+import {Steps} from "@/components/landing/Steps";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
@@ -13,6 +14,7 @@ export default function Home() {
         </Link>
       </main> */}
       <Hero />
+      <Steps />
     </div>
   );
 }
