@@ -181,14 +181,40 @@ const SubmissionsPage: React.FC = () => {
     [formatDate]
   );
 
+  // const deleteForm = useCallback(async (formId: number) => {
+  //   if (
+  //     confirm(
+  //       "Are you sure you want to delete this form? This action cannot be undone."
+  //     )
+  //   ) {
+  //     try {
+  //       await db.delete(jsonForms).where(eq(jsonForms.id, formId)); // Adjust this line according to your ORM's delete syntax
+
+  //       // Update state to remove the deleted form
+  //       setFormsData((prevForms) =>
+  //         prevForms.filter((form) => form.formId !== formId)
+  //       );
+  //     } catch (error) {
+  //       console.error(
+  //         "Error deleting form:",
+  //         error instanceof Error ? error.message : "Unknown error"
+  //       );
+  //     }
+  //   }
+  // }, []);
+
   const deleteForm = useCallback(async (formId: number) => {
     if (
       confirm(
-        "Are you sure you want to delete this form? This action cannot be undone."
+        "Are you sure you want to delete this form and all its submissions? This action cannot be undone."
       )
     ) {
       try {
-        await db.delete(jsonForms).where(eq(jsonForms.id, formId)); // Adjust this line according to your ORM's delete syntax
+        // Delete submissions associated with the form
+        await db.delete(submissions).where(eq(submissions.formId, formId));
+
+        // Delete the form itself
+        await db.delete(jsonForms).where(eq(jsonForms.id, formId));
 
         // Update state to remove the deleted form
         setFormsData((prevForms) =>
