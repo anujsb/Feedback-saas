@@ -9,11 +9,11 @@ import Image from "next/image";
 
 export function SideBar() {
   const links = [
-    {
-      label: "Dashboard",
-      href: "/dashboard",
-      icon: <IconBrandTabler className="h-5 w-5 flex-shrink-0" aria-hidden="true" />,
-    },
+    // {
+    //   label: "Dashboard",
+    //   href: "/dashboard",
+    //   icon: <IconBrandTabler className="h-5 w-5 flex-shrink-0" aria-hidden="true" />,
+    // },
     {
       label: "Submissions",
       href: "/submissions",

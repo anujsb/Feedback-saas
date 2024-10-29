@@ -97,10 +97,11 @@ export default function EmbedAiForm({ params }: EmbedAiFormProps) {
         </CardHeader>
         <CardContent>
           <div className="bg-secondary p-4 rounded-md mt-4 relative">
-            <pre className="text-sm overflow-x-auto">
+            {/* <pre className="text-sm overflow-x-auto">
               <code>{embedCode}</code>
-            </pre>
-            <Button
+            </pre> */}
+
+            {/* <Button
               variant="outline"
               size="icon"
               className="absolute top-2 right-2"
@@ -111,7 +112,9 @@ export default function EmbedAiForm({ params }: EmbedAiFormProps) {
               ) : (
                 <Copy className="h-4 w-4" />
               )}
-            </Button>
+            </Button> */}
+
+            <p>Stay tuned! An embed link will be available shortly!</p>
           </div>
           <div className="mt-8 ">
             <h3 className="text-lg font-semibold mb-2">Preview</h3>
