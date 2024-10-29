@@ -37,14 +37,14 @@ export const Timeline = ({ data }: { data: TimelineEntry[] }) => {
       className="w-full bg-bg font-sans md:px-10"
       ref={containerRef}
     >
-      <div className="max-w-7xl mx-auto py-20 px-4 md:px-8 lg:px-10">
+      <div className="max-w-7xl mx-auto py-10 px-4 md:px-8 lg:px-10">
         <h2 className="text-lg md:text-4xl mb-4 text-text  max-w-4xl">
           3 Easy Steps to Create and Share AI-Powered Forms
         </h2>
-        <p className="text-text  text-sm md:text-base max-w-sm">
+        {/* <p className="text-text  text-sm md:text-base max-w-sm">
           Our AI-driven platform helps you build custom, engaging forms
           effortlessly—no coding or technical setup required.
-        </p>
+        </p> */}
       </div>
 
       <div ref={ref} className="relative max-w-7xl mx-auto pb-20">
@@ -57,7 +57,7 @@ export const Timeline = ({ data }: { data: TimelineEntry[] }) => {
               <div className="h-10 absolute left-3 md:left-3 w-10 rounded-full bg-bg flex items-center justify-center">
                 <div className="h-4 w-4 rounded-full bg-primary border border-neutral-300 p-2" />
               </div>
-              <h3 className="hidden md:block text-xl md:pl-20 md:text-5xl font-bold text-text">
+              <h3 className="hidden md:block text-xl md:pl-20 md:text-4xl font-bod text-text">
                 {item.title}
               </h3>
             </div>

@@ -15,8 +15,8 @@ export default function Home() {
       </main> */}
       <Hero />
       <Steps />
-      <div className="h-screen">
-        hh
+      <div className="h-screen flex items-center justify-center text-3xl font-semibold">
+        More Features Coming soon.
       </div>
     </div>
   );

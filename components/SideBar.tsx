@@ -2,40 +2,30 @@
 import React, { useState } from "react";
 import { usePathname } from "next/navigation";
 import { Sidebar, SidebarBody, SidebarLink } from "./ui/sidebar";
-import {
-  // IconArrowLeft,
-  IconBrandTabler,
-  IconSettings,
-  IconUserBolt,
-} from "@tabler/icons-react";
+import { IconBrandTabler, IconSettings, IconUserBolt } from "@tabler/icons-react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import Image from "next/image";
-// import { cn } from "@/lib/utils";
 
 export function SideBar() {
   const links = [
     {
       label: "Dashboard",
       href: "/dashboard",
-      icon: <IconBrandTabler className=" h-5 w-5 flex-shrink-0" />,
+      icon: <IconBrandTabler className="h-5 w-5 flex-shrink-0" aria-hidden="true" />,
     },
     {
-      label: "submissions",
+      label: "Submissions",
       href: "/submissions",
-      icon: <IconUserBolt className=" h-5 w-5 flex-shrink-0" />,
+      icon: <IconUserBolt className="h-5 w-5 flex-shrink-0" aria-hidden="true" />,
     },
     {
       label: "Create Form",
       href: "/createform",
-      icon: <IconSettings className=" h-5 w-5 flex-shrink-0" />,
+      icon: <IconSettings className="h-5 w-5 flex-shrink-0" aria-hidden="true" />,
     },
-    // {
-    //   label: "Logout",
-    //   href: "#",
-    //   icon: <IconArrowLeft className=" h-5 w-5 flex-shrink-0" />,
-    // },
   ];
+
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
 
@@ -45,7 +35,7 @@ export function SideBar() {
         <SidebarBody className="justify-between gap-10">
           <div className="flex flex-col flex-1 overflow-y-auto overflow-x-hidden">
             {open ? <Logo /> : <LogoIcon />}
-            <div className="mt-8 flex flex-col gap-2">
+            <nav className="mt-8 flex flex-col gap-2" aria-label="Sidebar navigation">
               {links.map((link, idx) => (
                 <SidebarLink
                   key={idx}
@@ -53,13 +43,12 @@ export function SideBar() {
                   className={`${
                     pathname === link.href
                       ? "bg-secondary px-1 rounded-lg"
-                      : "bg-transparent px-1  rounded-lg"
+                      : "bg-transparent px-1 rounded-lg"
                   }`}
-                  // Remove the isActive prop if not needed, or
-                  // Update the component's props interface to include isActive: boolean
+                  aria-current={pathname === link.href ? "page" : undefined}
                 />
               ))}
-            </div>
+            </nav>
           </div>
           <div>
             <SidebarLink
@@ -72,10 +61,12 @@ export function SideBar() {
                     className="h-7 w-7 flex-shrink-0 rounded-full"
                     width={50}
                     height={50}
-                    alt="logo"
+                    alt="21bubbles logo"
+                    aria-hidden="true"
                   />
                 ),
               }}
+              aria-label="Visit 21bubbles website"
             />
           </div>
         </SidebarBody>
@@ -83,32 +74,34 @@ export function SideBar() {
     </div>
   );
 }
+
 export const Logo = () => {
   return (
     <Link
       href="#"
-      className="font-normal flex space-x-2 items-center  py-1 relative z-20"
+      className="font-normal flex space-x-2 items-center py-1 relative z-20"
+      aria-label="AI Form Generator home"
     >
-      <div className="h-5 w-6 rounded-br-lg rounded-tr-sm rounded-tl-lg rounded-bl-sm flex-shrink-0" />
+      <div
+        className="h-5 w-6 rounded-br-lg rounded-tr-sm rounded-tl-lg rounded-bl-sm flex-shrink-0"
+        aria-hidden="true"
+      />
       <motion.span
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        className="font-medium  whitespace-pre"
+        className="font-medium whitespace-pre"
       >
-        AI Form Generator.
+        AI Form Generator
       </motion.span>
     </Link>
   );
 };
+
 export const LogoIcon = () => {
   return (
-    <Link
-      href="/dashboard"
-      className="font-normal flex space-x-2 items-center py-1 relative z-20"
-    >
-      <div className="h-5 w-6  rounded-br-lg rounded-tr-sm rounded-tl-lg rounded-bl-sm flex-shrink-0" />
-    </Link>
+    <div
+      className="h-5 w-6 rounded-br-lg rounded-tr-sm rounded-tl-lg rounded-bl-sm flex-shrink-0"
+      aria-label="AI Form Generator logo"
+    />
   );
 };
-
-// Dummy dashboard component with content

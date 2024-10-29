@@ -63,11 +63,12 @@ export function Steps() {
       content: (
         <div>
           <p className="text-text text-xs md:text-sm font-normal mb-8">
-          Describe your form’s purpose with a prompt, and our AI instantly builds a custom form for you.
+            Describe your form’s purpose with a prompt, and our AI instantly
+            builds a custom form for you.
           </p>
           <div className="grid grid-cols-2 gap-4">
             <Image
-              src="/form-demo.png"
+              src="/create-form.png"
               alt="my gif"
               width="1130"
               height="1240"
@@ -83,11 +84,12 @@ export function Steps() {
       content: (
         <div>
           <p className="text-text text-xs md:text-sm font-normal mb-8">
-          Edit questions, add branding, and preview. Then, share via link or embed it on your website to start collecting responses.
+            Edit questions, add branding, and preview. Then, share via link or
+            embed it on your website to start collecting responses.
           </p>
           <div className="grid grid-cols-2 gap-4">
             <Image
-              src="/form-demo.png"
+              src="/edit-form.png"
               alt="my gif"
               width="1130"
               height="1240"
@@ -103,22 +105,25 @@ export function Steps() {
       content: (
         <div>
           <p className="text-text text-xs md:text-sm font-normal mb-4">
-          Track responses in real-time on your dashboard, with AI-powered summaries to highlight key trends and insights.
+            Track responses in real-time on your dashboard, with AI-powered
+            summaries to highlight key trends and insights.
           </p>
-          <div className="grid grid-cols-2 gap-4"><Image
-              src="/form-demo.png"
+          <div className="grid grid-cols-2 gap-4">
+            <Image
+              src="/submissions.png"
               alt="my gif"
               width="1130"
               height="1240"
               unoptimized
               className="border border-accent rounded-md"
-            /></div>
+            />
+          </div>
         </div>
       ),
     },
   ];
   return (
-    <div className="w-full">
+    <div className="w-full p-10">
       <Timeline data={data} />
     </div>
   );
