@@ -19,6 +19,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowUpRight } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
+import CopyLinkButton from "@/components/copy-liveLink";
 
 interface EditFormProps {
   params: {
@@ -179,6 +180,8 @@ function EditForm({ params }: EditFormProps) {
                 Live preview <ArrowUpRight className="w-5 h-5"/>
               </Button>
             </Link>
+            <CopyLinkButton formId={parseInt(params.formId, 10)} />
+
             <Link href={`/embed/${params.formId}`} target="_blank">
               <Button>Embed Link</Button>
             </Link>

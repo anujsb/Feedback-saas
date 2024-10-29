@@ -27,6 +27,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowRightIcon, FileJson } from "lucide-react";
 import { useUser } from "@clerk/nextjs";
 import Image from "next/image";
+import CopyLinkButton from "@/components/copy-liveLink";
 
 // Type definitions
 interface FormData {
@@ -67,11 +68,6 @@ interface StatCardProps {
   value: number | string;
 }
 
-interface ActionButtonProps {
-  href: string;
-  icon: React.FC<{ className?: string }>;
-}
-
 // Separate components
 const StatCard: React.FC<StatCardProps> = ({ icon: Icon, title, value }) => (
   <div className="flex flex-col gap-2 border border-secondary p-4 rounded-md w-full">
@@ -79,14 +75,6 @@ const StatCard: React.FC<StatCardProps> = ({ icon: Icon, title, value }) => (
     <h1>{title}</h1>
     <h1>{value}</h1>
   </div>
-);
-
-const ActionButton: React.FC<ActionButtonProps> = ({ href, icon: Icon }) => (
-  <Link href={href} target="_blank">
-    <Button variant="outline" className="border-secondary">
-      <Icon className="cursor-pointer h-4 w-4" />
-    </Button>
-  </Link>
 );
 
 const LoadingSpinner: React.FC = () => (
@@ -331,22 +319,28 @@ const SubmissionsPage: React.FC = () => {
                     {form.submissionCount}
                   </TableCell>
                   <TableCell className="text-center">
-                    <ActionButton
-                      href={`/aiform/${form.formId}`}
-                      icon={IconLink}
-                    />
+                    {/* <Link href={`/aiform/${form.formId}`}>
+                      <Button variant="outline" className="border-secondary">
+                        <IconLink className="cursor-pointer h-4 w-4" />
+                      </Button>
+                    </Link> */}
+                    <TableCell className="text-center">
+                      <CopyLinkButton formId={form.formId} />
+                    </TableCell>
                   </TableCell>
                   <TableCell className="text-center">
-                    <ActionButton
-                      href={`/embed/${form.formId}`}
-                      icon={FileJson}
-                    />
+                    <Link href={`/embed/${form.formId}`}>
+                      <Button variant="outline" className="border-secondary">
+                        <FileJson className="cursor-pointer h-4 w-4" />
+                      </Button>
+                    </Link>
                   </TableCell>
                   <TableCell className="text-center">
-                    <ActionButton
-                      href={`/edit-form/${form.formId}`}
-                      icon={IconEdit}
-                    />
+                    <Link href={`/edit-form/${form.formId}`}>
+                      <Button variant="outline" className="border-secondary">
+                        <IconEdit className="cursor-pointer h-4 w-4" />
+                      </Button>
+                    </Link>
                   </TableCell>
                   <TableCell className="text-center">
                     <Button
@@ -369,8 +363,7 @@ const SubmissionsPage: React.FC = () => {
             </TableBody>
             <TableFooter>
               <TableRow>
-                <TableCell colSpan={8}>
-                </TableCell>
+                <TableCell colSpan={8}></TableCell>
               </TableRow>
             </TableFooter>
           </Table>

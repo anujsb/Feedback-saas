@@ -6,6 +6,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
+import { Button } from "./ui/button";
 
 
 const CopyBtn = ({ text }: {
@@ -21,7 +22,7 @@ const CopyBtn = ({ text }: {
     <TooltipProvider>
       <Tooltip>
         <TooltipTrigger asChild>
-          <button onClick={() => copyToClipboard(text)} className="text-slate-50 absolute p-2 right-0 top-0"><Clipboard /></button>
+          <Button onClick={() => copyToClipboard(text)} className="text-slate-50 absolute p-2 right-0 top-0"><Clipboard /></Button>
         </TooltipTrigger>
         <TooltipContent>
           <p>Copy code</p>
