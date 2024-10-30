@@ -1,4 +1,6 @@
-import {Features} from "@/components/landing/Features";
+import { Features } from "@/components/landing/Features";
+import Footer from "@/components/landing/Footer";
+import { Header } from "@/components/landing/Header";
 import { Hero } from "@/components/landing/Hero";
 import { Steps } from "@/components/landing/Steps";
 import { Button } from "@/components/ui/button";
@@ -14,9 +16,11 @@ export default function Home() {
           <Button>Get Started</Button>
         </Link>
       </main> */}
+      <Header />
       <Hero />
       <Steps />
       <Features />
+      <Footer />
     </div>
   );
 }

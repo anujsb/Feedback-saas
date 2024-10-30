@@ -14,7 +14,7 @@ import Image from "next/image";
 
 export function Features() {
   return (
-    <div className="w-full mt-10 mx-auto px-10">
+    <div id="features" className="w-full mt-10 mx-auto px-10">
       <div className="max-w-7xl mx-auto py-6 px-4 md:px-8 lg:px-10">
         <h2 className="text-lg md:text-4xl mb-10 text-text  max-w-4xl">
           Beyond just Form Editor
@@ -67,14 +67,15 @@ const items = [
     icon: <IconSignature className="h-4 w-4 text-neutral-500" />,
   },
   {
-    
     title: "AI-Powered Response Summarization",
-    
-      description:
+
+    description:
       "Quickly analyze and summarize responses with AI to identify trends and key insights.",
     header: (
-    //   <div className="flex flex-1  w-full h-full items-center justify-center bg-[url('/submissions.png')] bg-cover rounded-lg shadow-sm"></div>
-      <div className="flex flex-1  w-full h-full items-center justify-center bg-background rounded-lg shadow-md">coming soon..</div>
+      //   <div className="flex flex-1  w-full h-full items-center justify-center bg-[url('/submissions.png')] bg-cover rounded-lg shadow-sm"></div>
+      <div className="flex flex-1  w-full h-full items-center justify-center bg-background rounded-lg shadow-md">
+        coming soon..
+      </div>
     ),
     icon: <IconTableColumn className="h-4 w-4 text-neutral-500" />,
   },
