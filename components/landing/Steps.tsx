@@ -123,7 +123,7 @@ export function Steps() {
     },
   ];
   return (
-    <div className="w-full p-10">
+    <div className="w-full p-10 bg-primary mt-10">
       <Timeline data={data} />
     </div>
   );
