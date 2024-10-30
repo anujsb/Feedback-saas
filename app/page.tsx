@@ -1,5 +1,6 @@
+import {Features} from "@/components/landing/Features";
 import { Hero } from "@/components/landing/Hero";
-import {Steps} from "@/components/landing/Steps";
+import { Steps } from "@/components/landing/Steps";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
@@ -15,9 +16,7 @@ export default function Home() {
       </main> */}
       <Hero />
       <Steps />
-      <div className="h-screen flex items-center justify-center text-3xl font-semibold">
-        More Features Coming soon.
-      </div>
+      <Features />
     </div>
   );
 }

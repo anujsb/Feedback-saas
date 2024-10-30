@@ -16,7 +16,7 @@ export const Hero: React.FC = () => {
           <h1 className="text-3xl font-medium sm:text-3xl md:text-5xl lg:text-7xl text-center bg-clip-text text-transparent bg-gradient-to-b from-neutral-100 to-neutral-400 mt-16 md:mt-20 lg:mt-28 pointer-events-none">
             Build Forms in Minutes with AI
           </h1>
-          <p className="text-text text-sm sm:text-base md:text-lg lg:text-xl my-4 lg:my-6 text-neutral-300 max-w-xl text-center">
+          <p className="text-text text-sm sm:text-base md:text-lg lg:text-xl my-4 lg:my-6 text-neutral-400 max-w-xl text-center">
             Harness the power of AI to create personalized feedback and contact
             forms effortlessly—collect insights and engage with your audience
             like never before.
